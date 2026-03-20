@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Volume Ratio Dashboard</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #0d1117; color: #e6edf3; }
+
+  .header {
+    background: linear-gradient(135deg, #1f2937, #111827);
+    padding: 18px 30px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 2px solid #f97316;
+  }
+  .header h1 { font-size: 1.5rem; color: #f97316; letter-spacing: 1px; }
+  .header .meta { font-size: 0.8rem; color: #9ca3af; text-align: right; }
+  .header .meta span { color: #f97316; }
+
+  .stats { display: flex; gap: 16px; padding: 20px 30px; flex-wrap: wrap; }
+  .card {
+    background: #161b22; border: 1px solid #30363d;
+    border-radius: 10px; padding: 14px 22px; flex: 1; min-width: 160px;
+  }
+  .card .label { font-size: 0.72rem; color: #8b949e; text-transform: uppercase; letter-spacing: 1px; }
+  .card .value { font-size: 1.7rem; font-weight: 700; margin-top: 4px; }
+  .card.orange .value { color: #f97316; }
+  .card.red    .value { color: #ef4444; }
+  .card.yellow .value { color: #eab308; }
+  .card.green  .value { color: #22c55e; }
+
+  .controls {
+    display: flex; gap: 12px; padding: 0 30px 16px; flex-wrap: wrap; align-items: center;
+  }
+  .controls input, .controls select {
+    background: #161b22; border: 1px solid #30363d; color: #e6edf3;
+    padding: 8px 14px; border-radius: 8px; font-size: 0.85rem; outline: none;
+  }
+  .controls input:focus, .controls select:focus { border-color: #f97316; }
+  .controls input { width: 240px; }
+  .btn {
+    padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer;
+    font-size: 0.85rem; font-weight: 600; transition: 0.2s;
+  }
+  .btn-primary   { background: #f97316; color: #fff; }
+  .btn-primary:hover   { background: #ea580c; }
+  .btn-secondary { background: #21262d; color: #e6edf3; border: 1px solid #30363d; }
+  .btn-secondary:hover { background: #30363d; }
+  .total-count { color: #8b949e; font-size: 0.82rem; margin-left: auto; }
+
+  .legend {
+    display: flex; gap: 20px; padding: 0 30px 16px; flex-wrap: wrap; font-size: 0.78rem;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot  { width: 12px; height: 12px; border-radius: 50%; }
+
+  .table-wrap { overflow-x: auto; padding: 0 30px 30px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  thead th {
+    background: #161b22; color: #8b949e; padding: 10px 12px;
+    text-align: left; cursor: pointer; user-select: none;
+    border-bottom: 2px solid #30363d; white-space: nowrap;
+    position: sticky; top: 0; z-index: 10;
+  }
+  thead th:hover { color: #f97316; }
+  thead th.sort-asc::after  { content: " ▲"; color: #f97316; }
+  thead th.sort-desc::after { content: " ▼"; color: #f97316; }
+  tbody tr { border-bottom: 1px solid #21262d; transition: background 0.15s; }
+  tbody tr:hover { background: #161b22; }
+  tbody td { padding: 9px 12px; white-space: nowrap; }
+
+  .rank    { color: #6b7280; font-weight: 600; }
+  .symbol  { color: #60a5fa; font-weight: 700; }
+  .company { color: #d1d5db; max-width: 200px; overflow: hidden; text-overflow: ellipsis; }
+  .sector  { color: #9ca3af; font-size: 0.78rem; }
+  .ltp     { font-weight: 600; }
+  .pct-pos { color: #22c55e; font-weight: 600; }
+  .pct-neg { color: #ef4444; font-weight: 600; }
+  .vol     { color: #d1d5db; }
+
+  .vr-badge {
+    display: inline-block; padding: 3px 10px; border-radius: 20px;
+    font-weight: 700; font-size: 0.88rem; min-width: 64px; text-align: center;
+  }
+  .vr-extreme { background: #7f1d1d; color: #fca5a5; }
+  .vr-high    { background: #7c2d12; color: #fed7aa; }
+  .vr-medium  { background: #713f12; color: #fde68a; }
+  .vr-normal  { background: #1c1917; color: #a8a29e; }
+
+  .no-data { text-align: center; padding: 60px; color: #6b7280; }
+  .no-data h2 { color: #f97316; margin-bottom: 10px; }
+  .no-data code { color: #f97316; background: #161b22; padding: 2px 8px; border-radius: 4px; }
+
+  .footer {
+    text-align: center; padding: 20px; color: #374151; font-size: 0.75rem;
+    border-top: 1px solid #21262d; margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📊 Volume Ratio Dashboard</h1>
+  <div class="meta">
+    Last Updated: <span id="lastUpdated">—</span><br>
+    Nifty Total Market | BSE + NSE Combined | 15-Day Avg
+  </div>
+</div>
+
+<div class="stats">
+  <div class="card orange">
+    <div class="label">Total Stocks</div>
+    <div class="value" id="totalStocks">—</div>
+  </div>
+  <div class="card red">
+    <div class="label">Extreme (&gt;5x)</div>
+    <div class="value" id="countExtreme">—</div>
+  </div>
+  <div class="card orange">
+    <div class="label">High (3x–5x)</div>
+    <div class="value" id="countHigh">—</div>
+  </div>
+  <div class="card yellow">
+    <div class="label">Moderate (1.5x–3x)</div>
+    <div class="value" id="countMedium">—</div>
+  </div>
+  <div class="card green">
+    <div class="label">Avg Volume Ratio</div>
+    <div class="value" id="avgRatio">—</div>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#7f1d1d"></div> Extreme &gt;5x</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#7c2d12"></div> High 3x–5x</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#713f12"></div> Moderate 1.5x–3x</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#1c1917"></div> Normal &lt;1.5x</div>
+</div>
+
+<div class="controls">
+  <input type="text" id="searchBox" placeholder="🔍 Search symbol or company..." oninput="applyFilters()">
+  <select id="sectorFilter" onchange="applyFilters()">
+    <option value="">All Sectors</option>
+  </select>
+  <select id="ratioFilter" onchange="applyFilters()">
+    <option value="">All Volume Ratios</option>
+    <option value="extreme">Extreme (&gt;5x)</option>
+    <option value="high">High (3x–5x)</option>
+    <option value="medium">Moderate (1.5x–3x)</option>
+    <option value="normal">Normal (&lt;1.5x)</option>
+  </select>
+  <select id="topFilter" onchange="applyFilters()">
+    <option value="0">Show All</option>
+    <option value="50">Top 50</option>
+    <option value="100">Top 100</option>
+    <option value="240">Top 240</option>
+  </select>
+  <button class="btn btn-secondary" onclick="resetFilters()">↺ Reset</button>
+  <button class="btn btn-primary"   onclick="loadData()">🔄 Refresh</button>
+  <span class="total-count" id="shownCount"></span>
+</div>
+
+<div class="table-wrap">
+  <table id="mainTable">
+    <thead>
+      <tr>
+        <th onclick="sortTable('Rank')">Rank</th>
+        <th onclick="sortTable('Symbol')">Symbol</th>
+        <th onclick="sortTable('Company Name')">Company</th>
+        <th onclick="sortTable('Sector')">Sector</th>
+        <th onclick="sortTable('LTP')">LTP (₹)</th>
+        <th onclick="sortTable('Pct Change')">% Chg</th>
+        <th onclick="sortTable('Today Volume')">Today Vol</th>
+        <th onclick="sortTable('15D Avg Volume')">15D Avg Vol</th>
+        <th onclick="sortTable('Volume Ratio')">Vol Ratio</th>
+        <th onclick="sortTable('Date')">Date</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody">
+      <tr><td colspan="10" class="no-data">
+        <h2>Loading data...</h2>
+        <p style="margin-top:10px">Fetching latest.json from output folder</p>
+      </td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="footer">
+  Volume Ratio = Today's Volume ÷ 15-Day Average Volume &nbsp;|&nbsp;
+  Data: Yahoo Finance &nbsp;|&nbsp;
+  For educational purposes only. Not investment advice.
+</div>
+
+<script>
+let allData = [];
+let sortKey = "Volume Ratio";
+let sortAsc = false;
+
+function fmtVol(n) {
+  if (!n || n === 0) return "—";
+  if (n >= 1e7) return (n / 1e7).toFixed(2) + " Cr";
+  if (n >= 1e5) return (n / 1e5).toFixed(2) + " L";
+  if (n >= 1e3) return (n / 1e3).toFixed(1) + " K";
+  return n.toLocaleString("en-IN");
+}
+
+function vrClass(r) {
+  if (r > 5)   return "vr-extreme";
+  if (r > 3)   return "vr-high";
+  if (r > 1.5) return "vr-medium";
+  return "vr-normal";
+}
+
+async function loadData() {
+  try {
+    const resp = await fetch("output/latest.json?t=" + Date.now());
+    if (!resp.ok) throw new Error("HTTP " + resp.status);
+    const meta = await resp.json();
+    allData = meta.data || [];
+    document.getElementById("lastUpdated").textContent = meta.last_updated || "—";
+    populateSectors();
+    updateStats();
+    applyFilters();
+  } catch (e) {
+    document.getElementById("tableBody").innerHTML = `
+      <tr><td colspan="10" class="no-data">
+        <h2>⚠️ No Data Found</h2>
+        <p style="margin-top:12px">
+          Run <code>python volume_ratio.py</code> first to generate data,<br>
+          then refresh this page.
+        </p>
+      </td></tr>`;
+  }
+}
+
+function populateSectors() {
+  const sectors = [...new Set(allData.map(d => d.Sector).filter(s => s && s !== "N/A"))].sort();
+  const sel = document.getElementById("sectorFilter");
+  sel.innerHTML = '<option value="">All Sectors</option>';
+  sectors.forEach(s => {
+    const o = document.createElement("option");
+    o.value = s; o.textContent = s;
+    sel.appendChild(o);
+  });
+}
+
+function updateStats() {
+  document.getElementById("totalStocks").textContent   = allData.length;
+  document.getElementById("countExtreme").textContent  = allData.filter(d => d["Volume Ratio"] > 5).length;
+  document.getElementById("countHigh").textContent     = allData.filter(d => d["Volume Ratio"] > 3 && d["Volume Ratio"] <= 5).length;
+  document.getElementById("countMedium").textContent   = allData.filter(d => d["Volume Ratio"] > 1.5 && d["Volume Ratio"] <= 3).length;
+  const avg = allData.length
+    ? (allData.reduce((s, d) => s + d["Volume Ratio"], 0) / allData.length).toFixed(2)
+    : "—";
+  document.getElementById("avgRatio").textContent = avg + "x";
+}
+
+function applyFilters() {
+  const search = document.getElementById("searchBox").value.toLowerCase();
+  const sector = document.getElementById("sectorFilter").value;
+  const ratio  = document.getElementById("ratioFilter").value;
+  const topN   = parseInt(document.getElementById("topFilter").value) || 0;
+
+  let filtered = allData.filter(d => {
+    if (search && !(d.Symbol || "").toLowerCase().includes(search) &&
+        !(d["Company Name"] || "").toLowerCase().includes(search)) return false;
+    if (sector && d.Sector !== sector) return false;
+    const r = d["Volume Ratio"];
+    if (ratio === "extreme" && r <= 5)               return false;
+    if (ratio === "high"    && (r <= 3 || r > 5))    return false;
+    if (ratio === "medium"  && (r <= 1.5 || r > 3))  return false;
+    if (ratio === "normal"  && r > 1.5)               return false;
+    return true;
+  });
+
+  filtered.sort((a, b) => {
+    let av = a[sortKey], bv = b[sortKey];
+    if (typeof av === "string") av = av.toLowerCase();
+    if (typeof bv === "string") bv = bv.toLowerCase();
+    return sortAsc ? (av > bv ? 1 : -1) : (av < bv ? 1 : -1);
+  });
+
+  if (topN > 0) filtered = filtered.slice(0, topN);
+
+  renderTable(filtered);
+  document.getElementById("shownCount").textContent =
+    `Showing ${filtered.length} of ${allData.length} stocks`;
+}
+
+function sortTable(key) {
+  sortAsc = (sortKey === key) ? !sortAsc : false;
+  sortKey = key;
+  document.querySelectorAll("thead th").forEach(th => th.classList.remove("sort-asc", "sort-desc"));
+  const keys = ["Rank","Symbol","Company Name","Sector","LTP","Pct Change",
+                 "Today Volume","15D Avg Volume","Volume Ratio","Date"];
+  const idx = keys.indexOf(key);
+  if (idx >= 0) {
+    document.querySelectorAll("thead th")[idx]
+      .classList.add(sortAsc ? "sort-asc" : "sort-desc");
+  }
+  applyFilters();
+}
+
+function resetFilters() {
+  document.getElementById("searchBox").value  = "";
+  document.getElementById("sectorFilter").value = "";
+  document.getElementById("ratioFilter").value  = "";
+  document.getElementById("topFilter").value    = "0";
+  sortKey = "Volume Ratio"; sortAsc = false;
+  applyFilters();
+}
+
+function renderTable(data) {
+  const tbody = document.getElementById("tableBody");
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="10" class="no-data"><h2>No stocks match your filters</h2></td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map((d, i) => {
+    const pct    = d["Pct Change"] || 0;
+    const pctStr = (pct >= 0 ? "+" : "") + pct.toFixed(2) + "%";
+    const pctCls = pct >= 0 ? "pct-pos" : "pct-neg";
+    const vr     = d["Volume Ratio"] || 0;
+    return `<tr>
+      <td class="rank">${d.Rank || i + 1}</td>
+      <td class="symbol">${d.Symbol || "—"}</td>
+      <td class="company" title="${d["Company Name"] || ""}">${d["Company Name"] || "—"}</td>
+      <td class="sector">${d.Sector || "N/A"}</td>
+      <td class="ltp">₹${(d.LTP || 0).toFixed(2)}</td>
+      <td class="${pctCls}">${pctStr}</td>
+      <td class="vol">${fmtVol(d["Today Volume"])}</td>
+      <td class="vol">${fmtVol(d["15D Avg Volume"])}</td>
+      <td><span class="vr-badge ${vrClass(vr)}">${vr.toFixed(2)}x</span></td>
+      <td class="sector">${d.Date || "—"}</td>
+    </tr>`;
+  }).join("");
+}
+
+loadData();
+</script>
+</body>
+</html>
+```
+
+---
+
+## 📄 Your `stock_list.csv` should look like this:
+```
+Symbol,Company Name,Sector
+RELIANCE.NS,Reliance Industries,Energy
+TCS.NS,Tata Consultancy Services,IT
+HDFCBANK.NS,HDFC Bank,Banking
+INFY.NS,Infosys,IT
+...
