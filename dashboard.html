@@ -23,14 +23,6 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Segoe U
 .card .lb{font-size:.68rem;color:var(--txt3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;font-weight:600}
 .card .vl{font-size:2rem;font-weight:800;line-height:1}
 .c-blue .vl{color:var(--blue)}.c-green .vl{color:var(--green)}.c-red .vl{color:var(--red)}.c-yellow .vl{color:var(--yellow)}.c-purple .vl{color:var(--purple)}
-.sector-wrap{background:var(--bg2);border-bottom:2px solid var(--border);padding:0 16px}
-.sector-tabs{display:flex;gap:2px;overflow-x:auto;white-space:nowrap;scrollbar-width:none;padding:8px 0}
-.sector-tabs::-webkit-scrollbar{display:none}
-.s-tab{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:4px;cursor:pointer;font-size:.78rem;font-weight:500;color:var(--txt2);border:1px solid transparent;background:transparent;transition:all .15s;white-space:nowrap}
-.s-tab:hover{background:var(--bg3);color:var(--txt)}
-.s-tab.active{background:var(--bg4);color:#fff;border-color:var(--border2)}
-.s-tab.active .cnt{background:var(--blue);color:#fff}
-.cnt{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:18px;padding:0 5px;border-radius:10px;background:var(--bg3);color:var(--txt3);font-size:.68rem;font-weight:700}
 .ctl{background:var(--bg2);padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .srch-wrap{position:relative;display:flex;align-items:center}
 .srch-wrap svg{position:absolute;left:9px;color:var(--txt3);width:14px;height:14px}
@@ -38,6 +30,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Segoe U
 .srch-wrap input:focus{border-color:var(--blue)}
 .ctl select{background:var(--bg3);border:1px solid var(--border2);border-radius:5px;color:var(--txt);padding:7px 10px;font-size:.8rem;cursor:pointer;outline:none;min-width:120px}
 .ctl select:focus{border-color:var(--blue)}
+.ctl select#sectorFilt{min-width:200px}
 .btn-reset{padding:7px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:5px;color:var(--txt2);font-size:.8rem;cursor:pointer}
 .btn-reset:hover{background:var(--bg4);color:var(--txt)}
 .btn-refresh{padding:7px 14px;background:#166534;border:1px solid #16a34a;border-radius:5px;color:#4ade80;font-size:.8rem;font-weight:600;cursor:pointer}
@@ -115,14 +108,14 @@ tbody td:last-child{border-right:none}
   <div class="card c-yellow"><div class="lb">Avg Vol Ratio</div><div class="vl" id="cAvg">&#8212;</div></div>
   <div class="card c-purple"><div class="lb">Extreme (&gt;5x)</div><div class="vl" id="cExt">&#8212;</div></div>
 </div>
-<div class="sector-wrap">
-  <div class="sector-tabs" id="sectorTabs"></div>
-</div>
 <div class="ctl">
   <div class="srch-wrap">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
     <input id="srch" placeholder="Search symbol or company..." oninput="applyFilters()"/>
   </div>
+  <select id="sectorFilt" onchange="setSector(this.value)">
+    <option value="All">All Sectors</option>
+  </select>
   <select id="ratioFilt" onchange="applyFilters()">
     <option value="0">All Ratios</option>
     <option value="2">&gt; 2x</option>
@@ -169,7 +162,6 @@ const JSON_URL='https://raw.githubusercontent.com/VJTriumph/VolumeRatio/main/out
 const CSV_URL='https://raw.githubusercontent.com/VJTriumph/VolumeRatio/main/output/volume_ratio_latest.csv';
 let allData=[],filtData=[],curPage=1,sortCol='Volume Ratio',sortDir=-1,curSector='All';
 const perPage=()=>+(document.getElementById('ppFilt').value||25);
-
 function fmtVol(n){
   n=+n;if(isNaN(n))return'&#8212;';
   if(n>=1e7)return(n/1e7).toFixed(2)+'Cr';
@@ -178,7 +170,6 @@ function fmtVol(n){
   return n.toLocaleString();
 }
 function fmtVolSub(n){n=+n;if(isNaN(n))return'';return n.toLocaleString('en-IN');}
-
 function parseCSV(txt){
   const lines=txt.trim().split('\n');
   const hdrs=lines[0].split(',').map(h=>h.trim());
@@ -190,7 +181,6 @@ function parseCSV(txt){
     return obj;
   });
 }
-
 async function loadData(){
   document.getElementById('msgDiv').className='msg';
   document.getElementById('msgDiv').innerHTML='<span class="spin"></span>Loading data...';
@@ -205,10 +195,10 @@ async function loadData(){
     if(jdata.last_updated){
       const parts=jdata.last_updated.split(' ');
       document.getElementById('lastDate').textContent=parts[0]||'&#8212;';
-      document.getElementById('lastTime').textContent=(parts[1]||'')+ ' IST';
+      document.getElementById('lastTime').textContent=(parts[1]||'')+' IST';
     }
     buildStats(allData);
-    buildSectorTabs(allData);
+    buildSectorSelect(allData);
     curPage=1;applyFilters();
     document.getElementById('msgDiv').style.display='none';
     document.getElementById('tbl').style.display='';
@@ -225,7 +215,7 @@ async function loadData(){
         document.getElementById('lastTime').textContent='EOD';
       }
       buildStats(allData);
-      buildSectorTabs(allData);
+      buildSectorSelect(allData);
       curPage=1;applyFilters();
       document.getElementById('msgDiv').style.display='none';
       document.getElementById('tbl').style.display='';
@@ -236,7 +226,6 @@ async function loadData(){
     }
   }
 }
-
 function buildStats(data){
   const gain=data.filter(d=>+d['Pct Change']>0).length;
   const loss=data.filter(d=>+d['Pct Change']<0).length;
@@ -248,33 +237,25 @@ function buildStats(data){
   document.getElementById('cAvg').textContent=avg+'x';
   document.getElementById('cExt').textContent=ext;
 }
-
-function buildSectorTabs(data){
+function buildSectorSelect(data){
   const cnt={};
   data.forEach(d=>{const s=(d['Sector']||'Other').trim();cnt[s]=(cnt[s]||0)+1;});
   const sorted=Object.entries(cnt).sort((a,b)=>b[1]-a[1]);
-  const tabs=document.getElementById('sectorTabs');
-  tabs.innerHTML='';
-  const mk=(label,key,count)=>{
-    const btn=document.createElement('button');
-    btn.className='s-tab'+(curSector===key?' active':'');
-    btn.dataset.sector=key;
-    btn.innerHTML=label+'<span class="cnt">'+count+'</span>';
-    btn.addEventListener('click',()=>setSector(key));
-    tabs.appendChild(btn);
-  };
-  mk('All','All',data.length);
-  sorted.forEach(([s,c])=>mk(s,s,c));
+  const sel=document.getElementById('sectorFilt');
+  sel.innerHTML='<option value="All">All Sectors ('+data.length+')</option>';
+  sorted.forEach(([s,c])=>{
+    const opt=document.createElement('option');
+    opt.value=s;
+    opt.textContent=s+' ('+c+')';
+    if(s===curSector)opt.selected=true;
+    sel.appendChild(opt);
+  });
 }
-
 function setSector(s){
   curSector=s;
-  document.querySelectorAll('.s-tab').forEach(b=>{
-    b.classList.toggle('active',b.dataset.sector===s);
-  });
-  curPage=1;applyFilters();
+  curPage=1;
+  applyFilters();
 }
-
 function applyFilters(){
   const srch=(document.getElementById('srch').value||'').toLowerCase();
   const minVR=+(document.getElementById('ratioFilt').value||0);
@@ -295,7 +276,6 @@ function applyFilters(){
   document.getElementById('resInfo').textContent=filtData.length+' stocks';
   renderPage();
 }
-
 function sortBy(col){
   if(sortCol===col)sortDir*=-1;else{sortCol=col;sortDir=-1;}
   document.querySelectorAll('thead th').forEach(th=>{
@@ -304,7 +284,6 @@ function sortBy(col){
   });
   curPage=1;applyFilters();
 }
-
 function renderPage(){
   const pp=perPage();
   const start=(curPage-1)*pp,end=Math.min(start+pp,filtData.length);
@@ -340,7 +319,6 @@ function renderPage(){
   }).join('');
   renderPag();
 }
-
 function renderPag(){
   const pp=perPage();
   const total=Math.ceil(filtData.length/pp);
@@ -355,18 +333,15 @@ function renderPag(){
   h+='<span class="pi">Page '+curPage+' / '+total+'</span>';
   pag.innerHTML=h;
 }
-
 function goP(p){curPage=p;renderPage();}
-
 function resetFilters(){
   document.getElementById('srch').value='';
   document.getElementById('ratioFilt').value='0';
   document.getElementById('chgFilt').value='all';
+  document.getElementById('sectorFilt').value='All';
   curSector='All';curPage=1;
-  buildSectorTabs(allData);
   applyFilters();
 }
-
 loadData();
 </script>
 </body>
