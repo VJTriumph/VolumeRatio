@@ -8,24 +8,21 @@
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#0a0e17;--bg2:#0f1520;--bg3:#141c2e;--bg4:#1a2338;--border:#1e2d45;--border2:#243350;--txt:#e2e8f0;--txt2:#94a3b8;--txt3:#64748b;--blue:#3b82f6;--cyan:#06b6d4;--green:#22c55e;--red:#ef4444;--yellow:#f59e0b;--purple:#a855f7;--orange:#f97316}
 html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,sans-serif;font-size:13px}
-
-/* HEADER */
-.hdr{background:linear-gradient(90deg,#0a0e17 0%,#0f1c35 50%,#0a0e17 100%);padding:14px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.hdr{background:linear-gradient(90deg,#0a0e17 0%,#0f1c35 50%,#0a0e17 100%);padding:14px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
 .hdr-left{display:flex;align-items:center;gap:10px}
 .hdr-icon{width:28px;height:28px;background:linear-gradient(135deg,#1d4ed8,#06b6d4);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px}
 .hdr h1{font-size:1.25rem;font-weight:700;background:linear-gradient(90deg,#60a5fa,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hdr-right{font-size:.75rem;color:var(--txt3)}
-.hdr-right b{color:var(--txt2)}
+.hdr-right{font-size:.75rem;color:var(--txt3);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .hdr-right a{color:var(--blue);text-decoration:none}
-
-/* STAT CARDS */
+.update-info{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.update-label{font-size:.65rem;color:var(--txt3);text-transform:uppercase;letter-spacing:.06em}
+.update-date{font-size:.78rem;color:var(--txt2);font-weight:600}
+.update-time{font-size:.7rem;color:var(--txt3)}
 .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 .card{background:var(--bg2);padding:16px 20px;text-align:center}
 .card .lb{font-size:.68rem;color:var(--txt3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;font-weight:600}
 .card .vl{font-size:2rem;font-weight:800;line-height:1}
 .c-blue .vl{color:var(--blue)}.c-green .vl{color:var(--green)}.c-red .vl{color:var(--red)}.c-yellow .vl{color:var(--yellow)}.c-purple .vl{color:var(--purple)}
-
-/* SECTOR TABS */
 .sector-wrap{background:var(--bg2);border-bottom:2px solid var(--border);padding:0 16px}
 .sector-tabs{display:flex;gap:2px;overflow-x:auto;white-space:nowrap;scrollbar-width:none;padding:8px 0}
 .sector-tabs::-webkit-scrollbar{display:none}
@@ -34,8 +31,6 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Segoe U
 .s-tab.active{background:var(--bg4);color:#fff;border-color:var(--border2)}
 .s-tab.active .cnt{background:var(--blue);color:#fff}
 .cnt{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:18px;padding:0 5px;border-radius:10px;background:var(--bg3);color:var(--txt3);font-size:.68rem;font-weight:700}
-
-/* CONTROLS */
 .ctl{background:var(--bg2);padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .srch-wrap{position:relative;display:flex;align-items:center}
 .srch-wrap svg{position:absolute;left:9px;color:var(--txt3);width:14px;height:14px}
@@ -49,12 +44,8 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Segoe U
 .btn-refresh:hover{background:#14532d}
 .ctl-right{margin-left:auto;font-size:.78rem;color:var(--txt3)}
 .ctl-right b{color:var(--txt2)}
-
-/* TABLE WRAPPER */
 .tbl-outer{overflow-x:auto;flex:1}
 table{width:100%;border-collapse:collapse;min-width:900px}
-
-/* THEAD */
 thead tr{background:var(--bg2);border-bottom:2px solid var(--border2)}
 thead th{padding:10px 12px;text-align:left;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--txt3);white-space:nowrap;cursor:pointer;user-select:none;border-right:1px solid var(--border)}
 thead th:last-child{border-right:none}
@@ -63,91 +54,70 @@ thead th .sa{font-size:.6rem;margin-left:3px;opacity:.5}
 thead th.sort-asc .sa::after{content:'\2191';opacity:1;color:var(--blue)}
 thead th.sort-desc .sa::after{content:'\2193';opacity:1;color:var(--blue)}
 thead th:not(.sort-asc):not(.sort-desc) .sa::after{content:'\2195';font-size:.55rem}
-/* column alignment */
 th.r,td.r{text-align:right}
 th.c,td.c{text-align:center}
-
-/* TBODY */
 tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
 tbody tr:hover{background:var(--bg3)}
 tbody td{padding:9px 12px;border-right:1px solid var(--border);white-space:nowrap}
 tbody td:last-child{border-right:none}
-
-/* cell styles */
 .td-rank{color:var(--txt3);font-size:.75rem;font-weight:600;min-width:48px}
 .td-rank.top{color:var(--yellow);font-weight:800}
-.td-sym-wrap{}
 .td-sym{color:var(--blue);font-weight:700;font-size:.85rem;text-decoration:none;display:block;line-height:1.2}
 .td-sym:hover{text-decoration:underline}
 .td-co{color:var(--txt3);font-size:.7rem;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
 .sect-pill{display:inline-block;padding:3px 9px;border-radius:4px;font-size:.7rem;font-weight:600;background:var(--bg4);color:var(--txt2);border:1px solid var(--border2);white-space:nowrap}
-.td-close{font-size:.85rem;font-weight:600;color:var(--txt)}
-.td-close .sym{font-size:.7rem;color:var(--txt3);margin-right:1px}
 .pct-badge{display:inline-block;padding:3px 8px;border-radius:4px;font-size:.78rem;font-weight:700;min-width:60px;text-align:center}
 .pct-pos{background:#052e16;color:#4ade80;border:1px solid #166534}
 .pct-neg{background:#450a0a;color:#f87171;border:1px solid #991b1b}
 .pct-neu{background:var(--bg4);color:var(--txt2);border:1px solid var(--border2)}
 .td-vol{font-size:.82rem;color:var(--txt)}
 .td-vol .sub{display:block;font-size:.68rem;color:var(--txt3);margin-top:1px}
-/* VOL RATIO bar */
 .vr-wrap{display:flex;align-items:center;gap:8px}
 .vr-bar-bg{width:60px;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;flex-shrink:0}
 .vr-bar{height:100%;border-radius:3px;transition:width .3s}
-.vr-lo .vr-bar{background:#22c55e}
-.vr-md .vr-bar{background:#f59e0b}
-.vr-hi .vr-bar{background:#ef4444}
+.vr-lo .vr-bar{background:#22c55e}.vr-md .vr-bar{background:#f59e0b}.vr-hi .vr-bar{background:#ef4444}
 .vr-val{font-size:.82rem;font-weight:700;min-width:38px;text-align:right}
 .vr-lo .vr-val{color:#22c55e}.vr-md .vr-val{color:#f59e0b}.vr-hi .vr-val{color:#ef4444}
-
-/* PAGINATION */
 .pag{display:flex;justify-content:center;align-items:center;gap:6px;padding:14px;background:var(--bg2);border-top:1px solid var(--border)}
 .pag button{padding:5px 11px;border-radius:4px;border:1px solid var(--border2);background:var(--bg3);color:var(--txt2);font-size:.78rem;cursor:pointer}
 .pag button:disabled{opacity:.3;cursor:default}
 .pag button.cur{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
 .pag button:not(:disabled):not(.cur):hover{background:var(--bg4);color:var(--txt)}
 .pag .pi{color:var(--txt3);font-size:.75rem;padding:0 4px}
-
-/* loading / error */
 .msg{text-align:center;padding:60px 20px;color:var(--txt2)}
 .msg.err{color:var(--red)}
 .spin{display:inline-block;width:20px;height:20px;border:2px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-/* scrollbar */
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 </style>
 </head>
 <body>
-
-<!-- HEADER -->
 <div class="hdr">
   <div class="hdr-left">
     <div class="hdr-icon">&#9654;</div>
     <h1>Volume Ratio Dashboard</h1>
   </div>
   <div class="hdr-right">
-    Source: <a href="https://github.com/VJTriumph/VolumeRatio" target="_blank">VJTriumph/VolumeRatio</a>
-    &nbsp;|&nbsp; Updated: <b id="lastUp">—</b>
+    <span>Source: <a href="https://github.com/VJTriumph/VolumeRatio" target="_blank">VJTriumph/VolumeRatio</a></span>
+    <div class="update-info">
+      <span class="update-label">EOD Auto-Updated</span>
+      <span class="update-date" id="lastDate">&#8212;</span>
+      <span class="update-time" id="lastTime">&#8212;</span>
+    </div>
   </div>
 </div>
-
-<!-- STAT CARDS -->
 <div class="stats">
-  <div class="card c-blue"><div class="lb">Total Stocks</div><div class="vl" id="cTotal">—</div></div>
-  <div class="card c-green"><div class="lb">Gainers</div><div class="vl" id="cGain">—</div></div>
-  <div class="card c-red"><div class="lb">Losers</div><div class="vl" id="cLoss">—</div></div>
-  <div class="card c-yellow"><div class="lb">Avg Vol Ratio</div><div class="vl" id="cAvg">—</div></div>
-  <div class="card c-purple"><div class="lb">Extreme (&gt;5x)</div><div class="vl" id="cExt">—</div></div>
+  <div class="card c-blue"><div class="lb">Total Stocks</div><div class="vl" id="cTotal">&#8212;</div></div>
+  <div class="card c-green"><div class="lb">Gainers</div><div class="vl" id="cGain">&#8212;</div></div>
+  <div class="card c-red"><div class="lb">Losers</div><div class="vl" id="cLoss">&#8212;</div></div>
+  <div class="card c-yellow"><div class="lb">Avg Vol Ratio</div><div class="vl" id="cAvg">&#8212;</div></div>
+  <div class="card c-purple"><div class="lb">Extreme (&gt;5x)</div><div class="vl" id="cExt">&#8212;</div></div>
 </div>
-
-<!-- SECTOR TABS -->
 <div class="sector-wrap">
   <div class="sector-tabs" id="sectorTabs"></div>
 </div>
-
-<!-- CONTROLS -->
 <div class="ctl">
   <div class="srch-wrap">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -172,10 +142,8 @@ tbody td:last-child{border-right:none}
   </select>
   <button class="btn-reset" onclick="resetFilters()">&#8635; Reset</button>
   <button class="btn-refresh" onclick="loadData()">&#8635; Refresh</button>
-  <div class="ctl-right"><b id="resInfo">—</b></div>
+  <div class="ctl-right"><b id="resInfo">&#8212;</b></div>
 </div>
-
-<!-- TABLE -->
 <div class="tbl-outer">
   <div class="msg" id="msgDiv"><span class="spin"></span>Loading data...</div>
   <table id="tbl" style="display:none">
@@ -184,7 +152,7 @@ tbody td:last-child{border-right:none}
         <th onclick="sortBy('Rank')" data-col="Rank">Rank<span class="sa"></span></th>
         <th onclick="sortBy('Symbol')" data-col="Symbol">Symbol<span class="sa"></span></th>
         <th onclick="sortBy('Sector')" data-col="Sector">Sector<span class="sa"></span></th>
-        <th onclick="sortBy('Close')" data-col="Close" class="r">Close<span class="sa"></span></th>
+        <th onclick="sortBy('Close')" data-col="Close" class="r">EOD Close<span class="sa"></span></th>
         <th onclick="sortBy('Pct Change')" data-col="Pct Change" class="c">% Chg<span class="sa"></span></th>
         <th onclick="sortBy('Today Volume')" data-col="Today Volume" class="r">Today Vol<span class="sa"></span></th>
         <th onclick="sortBy('15D Avg Volume')" data-col="15D Avg Volume" class="r">15D Avg<span class="sa"></span></th>
@@ -196,23 +164,20 @@ tbody td:last-child{border-right:none}
   </table>
 </div>
 <div class="pag" id="pagDiv" style="display:none"></div>
-
 <script>
+const JSON_URL='https://raw.githubusercontent.com/VJTriumph/VolumeRatio/main/output/latest.json';
 const CSV_URL='https://raw.githubusercontent.com/VJTriumph/VolumeRatio/main/output/volume_ratio_latest.csv';
 let allData=[],filtData=[],curPage=1,sortCol='Volume Ratio',sortDir=-1,curSector='All';
 const perPage=()=>+(document.getElementById('ppFilt').value||25);
 
 function fmtVol(n){
-  n=+n;if(isNaN(n))return'—';
+  n=+n;if(isNaN(n))return'&#8212;';
   if(n>=1e7)return(n/1e7).toFixed(2)+'Cr';
   if(n>=1e5)return(n/1e5).toFixed(2)+'L';
   if(n>=1e3)return(n/1e3).toFixed(1)+'K';
   return n.toLocaleString();
 }
-function fmtVolSub(n){
-  n=+n;if(isNaN(n))return'';
-  return n.toLocaleString('en-IN');
-}
+function fmtVolSub(n){n=+n;if(isNaN(n))return'';return n.toLocaleString('en-IN');}
 
 function parseCSV(txt){
   const lines=txt.trim().split('\n');
@@ -222,8 +187,6 @@ function parseCSV(txt){
     for(let c of l){if(c==='"'){inQ=!inQ;}else if(c===','&&!inQ){vals.push(cur.trim());cur='';}else cur+=c;}
     vals.push(cur.trim());
     const obj={};hdrs.forEach((h,i)=>obj[h]=vals[i]||'');
-    // alias: LTP / Close both map to Close
-    obj['Close']=obj['LTP']||obj['Close']||obj['Prev Close']||'';
     return obj;
   });
 }
@@ -235,20 +198,42 @@ async function loadData(){
   document.getElementById('tbl').style.display='none';
   document.getElementById('pagDiv').style.display='none';
   try{
-    const r=await fetch(CSV_URL+'?t='+Date.now());
-    if(!r.ok)throw new Error('HTTP '+r.status);
-    const txt=await r.text();
-    allData=parseCSV(txt);
+    const jr=await fetch(JSON_URL+'?t='+Date.now());
+    if(!jr.ok)throw new Error('HTTP '+jr.status);
+    const jdata=await jr.json();
+    allData=jdata.data||[];
+    if(jdata.last_updated){
+      const parts=jdata.last_updated.split(' ');
+      document.getElementById('lastDate').textContent=parts[0]||'&#8212;';
+      document.getElementById('lastTime').textContent=(parts[1]||'')+ ' IST';
+    }
     buildStats(allData);
     buildSectorTabs(allData);
-    curPage=1;
-    applyFilters();
+    curPage=1;applyFilters();
     document.getElementById('msgDiv').style.display='none';
     document.getElementById('tbl').style.display='';
     document.getElementById('pagDiv').style.display='';
-  }catch(e){
-    document.getElementById('msgDiv').className='msg err';
-    document.getElementById('msgDiv').innerHTML='&#9888; Error: '+e.message;
+  }catch(jsonErr){
+    try{
+      const r=await fetch(CSV_URL+'?t='+Date.now());
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      const txt=await r.text();
+      allData=parseCSV(txt);
+      const dates=allData.map(d=>d['Date']).filter(Boolean).sort();
+      if(dates.length){
+        document.getElementById('lastDate').textContent=dates[dates.length-1];
+        document.getElementById('lastTime').textContent='EOD';
+      }
+      buildStats(allData);
+      buildSectorTabs(allData);
+      curPage=1;applyFilters();
+      document.getElementById('msgDiv').style.display='none';
+      document.getElementById('tbl').style.display='';
+      document.getElementById('pagDiv').style.display='';
+    }catch(e){
+      document.getElementById('msgDiv').className='msg err';
+      document.getElementById('msgDiv').innerHTML='&#9888; Data fetch error: '+e.message+'<br><br><button class="btn-refresh" onclick="loadData()">&#8635; Retry</button>';
+    }
   }
 }
 
@@ -257,26 +242,25 @@ function buildStats(data){
   const loss=data.filter(d=>+d['Pct Change']<0).length;
   const avg=data.length?(data.reduce((s,d)=>s+(+d['Volume Ratio']||0),0)/data.length).toFixed(2):'0';
   const ext=data.filter(d=>+d['Volume Ratio']>=5).length;
-  const dates=data.map(d=>d['Date']).filter(Boolean).sort();
   document.getElementById('cTotal').textContent=data.length;
   document.getElementById('cGain').textContent=gain;
   document.getElementById('cLoss').textContent=loss;
   document.getElementById('cAvg').textContent=avg+'x';
   document.getElementById('cExt').textContent=ext;
-  if(dates.length)document.getElementById('lastUp').textContent=dates[dates.length-1];
 }
 
 function buildSectorTabs(data){
   const cnt={};
-  data.forEach(d=>{const s=d['Sector']||'Other';cnt[s]=(cnt[s]||0)+1;});
+  data.forEach(d=>{const s=(d['Sector']||'Other').trim();cnt[s]=(cnt[s]||0)+1;});
   const sorted=Object.entries(cnt).sort((a,b)=>b[1]-a[1]);
   const tabs=document.getElementById('sectorTabs');
   tabs.innerHTML='';
   const mk=(label,key,count)=>{
     const btn=document.createElement('button');
     btn.className='s-tab'+(curSector===key?' active':'');
+    btn.dataset.sector=key;
     btn.innerHTML=label+'<span class="cnt">'+count+'</span>';
-    btn.onclick=()=>setSector(key);
+    btn.addEventListener('click',()=>setSector(key));
     tabs.appendChild(btn);
   };
   mk('All','All',data.length);
@@ -286,8 +270,7 @@ function buildSectorTabs(data){
 function setSector(s){
   curSector=s;
   document.querySelectorAll('.s-tab').forEach(b=>{
-    const key=b.onclick.toString().match(/'([^']+)'/)?.[1];
-    b.classList.toggle('active',key===s);
+    b.classList.toggle('active',b.dataset.sector===s);
   });
   curPage=1;applyFilters();
 }
@@ -297,7 +280,7 @@ function applyFilters(){
   const minVR=+(document.getElementById('ratioFilt').value||0);
   const chgF=document.getElementById('chgFilt').value;
   filtData=allData.filter(d=>{
-    if(curSector!=='All'&&(d['Sector']||'Other')!==curSector)return false;
+    if(curSector!=='All'&&(d['Sector']||'Other').trim()!==curSector)return false;
     if(srch&&!(d['Symbol']||'').toLowerCase().includes(srch)&&!(d['Company Name']||'').toLowerCase().includes(srch))return false;
     if(minVR&&(+d['Volume Ratio']||0)<minVR)return false;
     if(chgF==='pos'&&(+d['Pct Change']||0)<=0)return false;
@@ -309,11 +292,8 @@ function applyFilters(){
     if(!isNaN(+av)&&!isNaN(+bv)){av=+av;bv=+bv;}
     if(av<bv)return sortDir;if(av>bv)return -sortDir;return 0;
   });
-  const pp=perPage();
   document.getElementById('resInfo').textContent=filtData.length+' stocks';
   renderPage();
-  // rebuild tabs with current count visible
-  buildSectorTabs(allData);
 }
 
 function sortBy(col){
@@ -330,11 +310,8 @@ function renderPage(){
   const start=(curPage-1)*pp,end=Math.min(start+pp,filtData.length);
   const slice=filtData.slice(start,end);
   const tbody=document.getElementById('tbody');
-
-  // max vol ratio for bar scaling
   const maxVR=Math.max(...filtData.map(d=>+d['Volume Ratio']||0),1);
-
-  tbody.innerHTML=slice.map((d,idx)=>{
+  tbody.innerHTML=slice.map(d=>{
     const sym=(d['Symbol']||'').replace('.NS','').replace('.BO','');
     const rank=d['Rank']||'';
     const isTop=+d['Volume Ratio']>=5;
@@ -343,38 +320,23 @@ function renderPage(){
     const pctCls=pct>0?'pct-pos':pct<0?'pct-neg':'pct-neu';
     const pctStr=(pct>0?'+':'')+pct.toFixed(2)+'%';
     const vr=+d['Volume Ratio']||0;
-    let vrCls=vr>=5?'vr-hi':vr>=2?'vr-md':'vr-lo';
+    const vrCls=vr>=5?'vr-hi':vr>=2?'vr-md':'vr-lo';
     const barW=Math.min(100,Math.round((vr/Math.max(maxVR,1))*100));
-    const close=+d['Close']||0;
-    const closeStr=close>0?'\u20B9'+close.toLocaleString('en-IN',{minimumFractionDigits:1,maximumFractionDigits:2}):'—';
+    const close=+(d['Close'])||0;
+    const closeStr=close>0?'&#8377;'+close.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}):'&#8212;';
     const tv=+d['Today Volume']||0;
     const av=+d['15D Avg Volume']||0;
-
-    return `<tr>
-      <td class="td-rank${isTop?' top':''}"><span style="color:${isTop?'var(--yellow)':'var(--txt3)'}">#${rank}</span></td>
-      <td class="td-sym-wrap">
-        <a class="td-sym" href="${link}" target="_blank">${sym}</a>
-        <div class="td-co">${d['Company Name']||sym}</div>
-      </td>
-      <td><span class="sect-pill">${d['Sector']||'Other'}</span></td>
-      <td class="td-close r"><span class="sym">&#8377;</span>${close>0?close.toLocaleString('en-IN',{minimumFractionDigits:1,maximumFractionDigits:2}):'—'}</td>
-      <td class="c"><span class="pct-badge ${pctCls}">${pctStr}</span></td>
-      <td class="td-vol r">
-        ${fmtVol(tv)}
-        <span class="sub">${fmtVolSub(tv)}</span>
-      </td>
-      <td class="td-vol r">
-        ${fmtVol(av)}
-        <span class="sub">${fmtVolSub(av)}</span>
-      </td>
-      <td class="r">
-        <div class="vr-wrap ${vrCls}" style="justify-content:flex-end">
-          <div class="vr-bar-bg"><div class="vr-bar" style="width:${barW}%"></div></div>
-          <span class="vr-val">${vr.toFixed(2)}x</span>
-        </div>
-      </td>
-      <td class="r" style="color:var(--txt3);font-size:.75rem">${d['Date']||'—'}</td>
-    </tr>`;
+    return '<tr>'
+      +'<td class="td-rank'+(isTop?' top':'')+'"><span style="color:'+(isTop?'var(--yellow)':'var(--txt3)')+';">#'+rank+'</span></td>'
+      +'<td><a class="td-sym" href="'+link+'" target="_blank">'+sym+'</a><div class="td-co">'+(d['Company Name']||sym)+'</div></td>'
+      +'<td><span class="sect-pill">'+((d['Sector']||'Other').trim())+'</span></td>'
+      +'<td class="r" style="font-size:.85rem;font-weight:600;color:var(--txt)">'+closeStr+'</td>'
+      +'<td class="c"><span class="pct-badge '+pctCls+'">'+pctStr+'</span></td>'
+      +'<td class="td-vol r">'+fmtVol(tv)+'<span class="sub">'+fmtVolSub(tv)+'</span></td>'
+      +'<td class="td-vol r">'+fmtVol(av)+'<span class="sub">'+fmtVolSub(av)+'</span></td>'
+      +'<td class="r"><div class="vr-wrap '+vrCls+'" style="justify-content:flex-end"><div class="vr-bar-bg"><div class="vr-bar" style="width:'+barW+'%"></div></div><span class="vr-val">'+vr.toFixed(2)+'x</span></div></td>'
+      +'<td class="r" style="color:var(--txt3);font-size:.75rem">'+(d['Date']||'&#8212;')+'</td>'
+      +'</tr>';
   }).join('');
   renderPag();
 }
@@ -384,24 +346,28 @@ function renderPag(){
   const total=Math.ceil(filtData.length/pp);
   const pag=document.getElementById('pagDiv');
   if(total<=1){pag.innerHTML='';return;}
-  let h='';
-  h+='<button onclick="goP('+Math.max(1,curPage-1)+')" '+(curPage===1?'disabled':'')+'>&#8592;</button>';
+  let h='<button onclick="goP('+Math.max(1,curPage-1)+')" '+(curPage===1?'disabled':'')+'>&larr;</button>';
   const s=Math.max(1,curPage-3),e=Math.min(total,curPage+3);
-  if(s>1)h+='<button onclick="goP(1)">1</button>'+(s>2?'<span class="pi">…</span>':'');
+  if(s>1)h+='<button onclick="goP(1)">1</button>'+(s>2?'<span class="pi">&hellip;</span>':'');
   for(let p=s;p<=e;p++)h+='<button class="'+(p===curPage?'cur':'')+'" onclick="goP('+p+')">'+p+'</button>';
-  if(e<total)h+=(e<total-1?'<span class="pi">…</span>':'')+'<button onclick="goP('+total+')">'+total+'</button>';
-  h+='<button onclick="goP('+Math.min(total,curPage+1)+')" '+(curPage===total?'disabled':'')+'> &#8594;</button>';
+  if(e<total)h+=(e<total-1?'<span class="pi">&hellip;</span>':'')+'<button onclick="goP('+total+')">'+total+'</button>';
+  h+='<button onclick="goP('+Math.min(total,curPage+1)+')" '+(curPage===total?'disabled':'')+'>&rarr;</button>';
   h+='<span class="pi">Page '+curPage+' / '+total+'</span>';
   pag.innerHTML=h;
 }
+
 function goP(p){curPage=p;renderPage();}
+
 function resetFilters(){
   document.getElementById('srch').value='';
   document.getElementById('ratioFilt').value='0';
   document.getElementById('chgFilt').value='all';
-  curSector='All';curPage=1;applyFilters();
+  curSector='All';curPage=1;
+  buildSectorTabs(allData);
+  applyFilters();
 }
+
 loadData();
 </script>
 </body>
-  </html>
+</html>
