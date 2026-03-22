@@ -5,72 +5,93 @@ from datetime import datetime, timedelta
 import time
 import json
 
-# ─────────────────────────────────────────────
-# CONFIG
-# ─────────────────────────────────────────────
-DATA_FOLDER   = "data"
-OUTPUT_FOLDER = "output"
-STOCK_LIST    = os.path.join(DATA_FOLDER, "niftytotalmarket_list .csv")
-LOOKBACK_DAYS = 15   # trading days for avg volume
+DATA_FOLDER    = "data"
+OUTPUT_FOLDER  = "output"
+STOCK_LIST     = os.path.join(DATA_FOLDER, "niftytotalmarket_list .csv")
+LOOKBACK_DAYS  = 15
+FETCH_INFO     = True
 
-# ─────────────────────────────────────────────
-# SETUP FOLDERS
-# ─────────────────────────────────────────────
 os.makedirs(DATA_FOLDER,   exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
-# ─────────────────────────────────────────────
-# READ STOCK LIST
-# ─────────────────────────────────────────────
 print("=" * 60)
-print("   VOLUME RATIO DASHBOARD - DATA UPDATER")
+print("  VOLUME RATIO DASHBOARD - DATA UPDATER")
 print("=" * 60)
-print()
-print("Reading stock list...")
 
+print("Reading stock list...")
 if not os.path.exists(STOCK_LIST):
-    print(f"ERROR: Stock list not found at {STOCK_LIST}")
-    print("Please upload your stock_list.csv to the data/ folder")
+    print(f"ERROR: {STOCK_LIST} not found")
     exit(1)
 
 df_stocks = pd.read_csv(STOCK_LIST)
-
-# Normalize column names
 df_stocks.columns = df_stocks.columns.str.strip().str.lower()
 
-# Auto-detect column names
 def find_col(df, candidates):
     for c in candidates:
         if c in df.columns:
             return c
     return df.columns[0]
 
-symbols_col = find_col(df_stocks, ["symbol", "ticker", "scrip", "nse symbol", "bse symbol"])
-name_col    = find_col(df_stocks, ["company name", "name", "company", "stock name"])
+symbols_col = find_col(df_stocks, ["symbol", "ticker", "scrip"])
+name_col    = find_col(df_stocks, ["company name", "name", "company"])
 sector_col  = find_col(df_stocks, ["sector", "industry", "segment"])
-
-# Verify optional cols exist
-name_col   = name_col   if name_col   in df_stocks.columns else None
-sector_col = sector_col if sector_col in df_stocks.columns else None
-
+name_col    = name_col   if name_col   in df_stocks.columns else None
+sector_col  = sector_col if sector_col in df_stocks.columns else None
 stocks = df_stocks[symbols_col].dropna().str.strip().tolist()
-print(f"Total stocks loaded  : {len(stocks)}")
-print(f"Symbol column        : {symbols_col}")
-print(f"Company name column  : {name_col or 'Not found'}")
-print(f"Sector column        : {sector_col or 'Not found'}")
-print()
+print(f"Loaded {len(stocks)} stocks")
 
-# ─────────────────────────────────────────────
-# FETCH DATA FROM YAHOO FINANCE
-# ─────────────────────────────────────────────
+SECTOR_CACHE_FILE = os.path.join(DATA_FOLDER, "sector_cache.json")
+
+def load_sector_cache():
+    if os.path.exists(SECTOR_CACHE_FILE):
+        with open(SECTOR_CACHE_FILE) as f:
+            return json.load(f)
+    return {}
+
+def save_sector_cache(cache):
+    with open(SECTOR_CACHE_FILE, "w") as f:
+        json.dump(cache, f, indent=2)
+
+sector_cache = load_sector_cache()
+print(f"Sector cache: {len(sector_cache)} entries")
+
+YAHOO_SECTOR_MAP = {
+    "Financial Services": "Finance",
+    "Technology": "Technology",
+    "Healthcare": "Healthcare",
+    "Consumer Cyclical": "Consumer",
+    "Consumer Defensive": "FMCG",
+    "Basic Materials": "Materials",
+    "Industrials": "Capital Goods",
+    "Energy": "Energy",
+    "Communication Services": "Telecom",
+    "Real Estate": "Real Estate",
+    "Utilities": "Energy",
+}
+
+def get_info(symbol, ticker_obj, row_name, row_sector):
+    if row_sector and row_sector not in ("N/A", "nan", "", symbol):
+        return row_name or symbol, row_sector
+    if symbol in sector_cache:
+        c = sector_cache[symbol]
+        return c.get("name", row_name or symbol), c.get("sector", "Other")
+    if FETCH_INFO:
+        try:
+            info    = ticker_obj.info
+            yname   = info.get("longName") or info.get("shortName") or row_name or symbol
+            ysector = info.get("sector")   or info.get("industry")  or "Other"
+            ysector = YAHOO_SECTOR_MAP.get(ysector, ysector)
+            sector_cache[symbol] = {"name": yname, "sector": ysector}
+            return yname, ysector
+        except Exception:
+            pass
+    return row_name or symbol, "Other"
+
 end_date   = datetime.today()
 start_date = end_date - timedelta(days=LOOKBACK_DAYS * 3)
+results, failed = [], []
 
-results = []
-failed  = []
-
-print(f"Fetching data for {len(stocks)} stocks from Yahoo Finance...")
-print(f"Period: {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}")
+print(f"Fetching {len(stocks)} stocks...")
 print("-" * 60)
 
 for i, symbol in enumerate(stocks, 1):
@@ -80,126 +101,80 @@ for i, symbol in enumerate(stocks, 1):
             start=start_date.strftime("%Y-%m-%d"),
             end=end_date.strftime("%Y-%m-%d")
         )
-
         if hist.empty or len(hist) < 2:
-            print(f"  [{i:4d}/{len(stocks)}] {symbol:<20} SKIP - No/insufficient data")
             failed.append({"symbol": symbol, "reason": "no data"})
             continue
-
-        hist = hist.tail(LOOKBACK_DAYS + 1)
-
-        today_volume   = int(hist["Volume"].iloc[-1])
-        prev_volumes   = hist["Volume"].iloc[:-1]
-        avg_volume_15d = int(prev_volumes.mean()) if len(prev_volumes) > 0 else 0
-        volume_ratio   = round(today_volume / avg_volume_15d, 4) if avg_volume_15d > 0 else 0
-
-        today_close = round(float(hist["Close"].iloc[-1]), 2)
-        prev_close  = round(float(hist["Close"].iloc[-2]), 2)
-        pct_change  = round(((today_close - prev_close) / prev_close) * 100, 2) if prev_close > 0 else 0
-
-        today_high  = round(float(hist["High"].iloc[-1]), 2)
-        today_low   = round(float(hist["Low"].iloc[-1]), 2)
-        today_open  = round(float(hist["Open"].iloc[-1]), 2)
-
-        row          = df_stocks[df_stocks[symbols_col].str.strip() == symbol]
-        company_name = str(row[name_col].values[0]).strip()   if name_col   and not row.empty else symbol
-        sector       = str(row[sector_col].values[0]).strip() if sector_col and not row.empty else "N/A"
-
+        hist       = hist.tail(LOOKBACK_DAYS + 1)
+        today_vol  = int(hist["Volume"].iloc[-1])
+        avg_vol    = int(hist["Volume"].iloc[:-1].mean()) if len(hist) > 1 else 0
+        vol_ratio  = round(today_vol / avg_vol, 4) if avg_vol > 0 else 0
+        close      = round(float(hist["Close"].iloc[-1]), 2)
+        prev_close = round(float(hist["Close"].iloc[-2]), 2)
+        pct_chg    = round(((close - prev_close) / prev_close) * 100, 2) if prev_close > 0 else 0
+        row        = df_stocks[df_stocks[symbols_col].str.strip() == symbol]
+        row_name   = str(row[name_col].values[0]).strip()   if name_col   and not row.empty else ""
+        row_sector = str(row[sector_col].values[0]).strip() if sector_col and not row.empty else ""
+        cname, sector = get_info(symbol, ticker, row_name, row_sector)
         results.append({
             "Symbol"         : symbol,
-            "Company Name"   : company_name,
+            "Company Name"   : cname,
             "Sector"         : sector,
-            "Open"           : today_open,
-            "High"           : today_high,
-            "Low"            : today_low,
-            "LTP"            : today_close,
-            "Pct Change"     : pct_change,
-            "Today Volume"   : today_volume,
-            "15D Avg Volume" : avg_volume_15d,
-            "Volume Ratio"   : volume_ratio,
+            "Open"           : round(float(hist["Open"].iloc[-1]), 2),
+            "High"           : round(float(hist["High"].iloc[-1]), 2),
+            "Low"            : round(float(hist["Low"].iloc[-1]),  2),
+            "LTP"            : close,
+            "Pct Change"     : pct_chg,
+            "Today Volume"   : today_vol,
+            "15D Avg Volume" : avg_vol,
+            "Volume Ratio"   : vol_ratio,
             "Days of Data"   : len(hist),
             "Date"           : hist.index[-1].strftime("%Y-%m-%d"),
         })
-
-        if i % 25 == 0 or i == len(stocks):
-            print(f"  Progress: {i}/{len(stocks)} | Results: {len(results)} | Failed: {len(failed)}")
-
+        if i % 50 == 0 or i == len(stocks):
+            print(f"  {i}/{len(stocks)} OK:{len(results)} Failed:{len(failed)}")
         time.sleep(0.05)
-
     except Exception as e:
-        print(f"  [{i:4d}/{len(stocks)}] {symbol:<20} ERROR - {str(e)[:60]}")
         failed.append({"symbol": symbol, "reason": str(e)})
 
-print("-" * 60)
+save_sector_cache(sector_cache)
+print(f"Cache saved: {len(sector_cache)} entries")
 
-# ─────────────────────────────────────────────
-# BUILD & SORT DATAFRAME
-# ─────────────────────────────────────────────
 if not results:
-    print("No data fetched. Check your symbols (should end with .NS or .BO)")
+    print("No data fetched.")
     exit(1)
 
 df_result = pd.DataFrame(results)
 df_result = df_result.sort_values("Volume Ratio", ascending=False).reset_index(drop=True)
 df_result.insert(0, "Rank", range(1, len(df_result) + 1))
 
-# ─────────────────────────────────────────────
-# SAVE CSV
-# ─────────────────────────────────────────────
 today_str  = datetime.today().strftime("%Y%m%d")
 csv_dated  = os.path.join(OUTPUT_FOLDER, f"volume_ratio_{today_str}.csv")
 csv_latest = os.path.join(OUTPUT_FOLDER, "volume_ratio_latest.csv")
+json_file  = os.path.join(OUTPUT_FOLDER, "latest.json")
 
 df_result.to_csv(csv_dated,  index=False)
 df_result.to_csv(csv_latest, index=False)
 
-print(f"\nCSV (dated)  : {csv_dated}")
-print(f"CSV (latest) : {csv_latest}")
-
-# ─────────────────────────────────────────────
-# SAVE JSON FOR DASHBOARD
-# ─────────────────────────────────────────────
-json_file = os.path.join(OUTPUT_FOLDER, "latest.json")
+sector_summary = df_result.groupby("Sector").size().sort_values(ascending=False).to_dict()
 meta = {
-    "last_updated"  : datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-    "total_stocks"  : len(results),
-    "failed_stocks" : len(failed),
-    "csv_file"      : csv_dated,
-    "data"          : df_result.to_dict(orient="records")
+    "last_updated"   : datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    "total_stocks"   : len(results),
+    "failed_stocks"  : len(failed),
+    "sector_summary" : sector_summary,
+    "data"           : df_result.to_dict(orient="records"),
 }
 with open(json_file, "w", encoding="utf-8") as f:
     json.dump(meta, f, indent=2, ensure_ascii=False)
-
-print(f"JSON         : {json_file}")
-
-# ─────────────────────────────────────────────
-# SUMMARY
-# ─────────────────────────────────────────────
-extreme = len(df_result[df_result["Volume Ratio"] > 5])
-high    = len(df_result[(df_result["Volume Ratio"] > 3) & (df_result["Volume Ratio"] <= 5)])
-medium  = len(df_result[(df_result["Volume Ratio"] > 1.5) & (df_result["Volume Ratio"] <= 3)])
-normal  = len(df_result[df_result["Volume Ratio"] <= 1.5])
 
 print()
 print("=" * 60)
 print("SUMMARY")
 print("=" * 60)
-print(f"  Stocks processed     : {len(results)}")
-print(f"  Failed / skipped     : {len(failed)}")
-print(f"  Date                 : {df_result['Date'].iloc[0]}")
-print()
-print("  Volume Ratio Breakdown:")
-print(f"    Extreme  (>5x)     : {extreme}")
-print(f"    High     (3x-5x)   : {high}")
-print(f"    Moderate (1.5x-3x) : {medium}")
-print(f"    Normal   (<1.5x)   : {normal}")
-print()
-if failed:
-    print(f"  Failed symbols (first 10):")
-    for f in failed[:10]:
-        print(f"    {f['symbol']}: {f['reason'][:50]}")
-    if len(failed) > 10:
-        print(f"    ... and {len(failed)-10} more")
-    print()
-print("Done! Open dashboard.html in your browser.")
+print(f"  Processed : {len(results)} | Failed: {len(failed)}")
+print(f"  Sectors   : {df_result['Sector'].nunique()}")
+for s, c in list(sector_summary.items())[:12]:
+    print(f"    {s:<28} {c}")
+print(f"  CSV  : {csv_latest}")
+print(f"  JSON : {json_file}")
 print("=" * 60)
+print("Done!")
