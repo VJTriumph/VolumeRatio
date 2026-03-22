@@ -5,11 +5,11 @@ from datetime import datetime, timedelta
 import time
 import json
 
-DATA_FOLDER    = "data"
-OUTPUT_FOLDER  = "output"
-STOCK_LIST     = os.path.join(DATA_FOLDER, "niftytotalmarket_list.csv")
-LOOKBACK_DAYS  = 15
-FETCH_INFO     = False
+DATA_FOLDER   = "data"
+OUTPUT_FOLDER = "output"
+STOCK_LIST    = os.path.join(DATA_FOLDER, "niftytotalmarket_list.csv")
+LOOKBACK_DAYS = 15
+FETCH_INFO    = False
 
 os.makedirs(DATA_FOLDER,   exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
@@ -35,17 +35,18 @@ def find_col(df, candidates):
 symbols_col = find_col(df_stocks, ["symbol", "ticker", "scrip"])
 name_col    = find_col(df_stocks, ["company name", "name", "company"])
 sector_col  = find_col(df_stocks, ["sector", "industry", "segment"])
-name_col    = name_col   if name_col   in df_stocks.columns else None
-sector_col  = sector_col if sector_col in df_stocks.columns else None
+name_col   = name_col   if name_col   in df_stocks.columns else None
+sector_col = sector_col if sector_col in df_stocks.columns else None
 
 # Build lookup dict: base_symbol (no .NS/.BO) -> (name, sector)
 sector_map = {}
 for _, row in df_stocks.iterrows():
-    sym  = str(row[symbols_col]).strip()
-    base = sym.replace(".NS","").replace(".BO","").upper()
-    sname  = str(row[name_col]).strip()   if name_col   else sym
-    ssect  = str(row[sector_col]).strip() if sector_col else "Other"
-    if ssect in ("nan","N/A","","None"): ssect = "Other"
+    sym   = str(row[symbols_col]).strip()
+    base  = sym.replace(".NS","").replace(".BO","").upper()
+    sname = str(row[name_col]).strip()    if name_col   else sym
+    ssect = str(row[sector_col]).strip()  if sector_col else "Other"
+    if ssect in ("nan","N/A","","None"):
+        ssect = "Other"
     sector_map[base] = (sname, ssect)
     sector_map[sym]  = (sname, ssect)
 
@@ -78,17 +79,17 @@ sector_cache = load_sector_cache()
 print(f"Sector cache: {len(sector_cache)} entries")
 
 YAHOO_SECTOR_MAP = {
-    "Financial Services"    : "Financial Services",
-    "Technology"            : "Technology",
-    "Healthcare"            : "Healthcare",
-    "Consumer Cyclical"     : "Consumer Discretionary",
-    "Consumer Defensive"    : "Fast Moving Consumer Goods",
-    "Basic Materials"       : "Chemicals",
-    "Industrials"           : "Capital Goods",
-    "Energy"                : "Energy",
-    "Communication Services": "Telecom",
-    "Real Estate"           : "Real Estate",
-    "Utilities"             : "Power",
+    "Financial Services"  : "Financial Services",
+    "Technology"          : "Information Technology",
+    "Healthcare"          : "Healthcare",
+    "Consumer Cyclical"   : "Consumer Durables",
+    "Consumer Defensive"  : "Fast Moving Consumer Goods",
+    "Basic Materials"     : "Chemicals",
+    "Industrials"         : "Capital Goods",
+    "Energy"              : "Oil Gas & Consumable Fuels",
+    "Communication Services": "Telecommunication",
+    "Real Estate"         : "Realty",
+    "Utilities"           : "Power",
 }
 
 def get_info(symbol, ticker_obj):
@@ -121,32 +122,55 @@ def get_info(symbol, ticker_obj):
         except Exception:
             pass
 
-    return name_fallback, sector_map.get(base, (name_fallback,"Other"))[1]
+    return name_fallback, sector_map.get(base, (name_fallback, "Other"))[1]
 
-end_date   = datetime.today()
-start_date = end_date - timedelta(days=LOOKBACK_DAYS * 3)
+# ── Date window ────────────────────────────────────────────────
+# Always fetch enough history to get confirmed EOD data.
+# We use end_date = today + 1 day so yfinance returns up to yesterday's EOD bar.
+# The most recent fully closed trading session is hist.iloc[-1] after filtering
+# out any partial (today) bar.
+today     = datetime.today().date()
+end_dt    = today + timedelta(days=1)          # exclusive upper bound for yfinance
+start_dt  = today - timedelta(days=LOOKBACK_DAYS * 3)
 
 results, failed = [], []
-print(f"Fetching {len(stocks)} stocks...")
+print(f"Fetching {len(stocks)} stocks (EOD data up to {today})...")
 print("-" * 60)
 
 for i, symbol in enumerate(stocks, 1):
     try:
         ticker = yf.Ticker(symbol)
         hist   = ticker.history(
-            start=start_date.strftime("%Y-%m-%d"),
-            end=end_date.strftime("%Y-%m-%d")
+            start=start_dt.strftime("%Y-%m-%d"),
+            end=end_dt.strftime("%Y-%m-%d"),
+            auto_adjust=True,
         )
+
         if hist.empty or len(hist) < 2:
             failed.append({"symbol": symbol, "reason": "no data"})
             continue
-        hist      = hist.tail(LOOKBACK_DAYS + 1)
+
+        # Drop any row whose date is today (intraday / incomplete bar)
+        hist.index = hist.index.tz_localize(None) if hist.index.tzinfo else hist.index
+        hist = hist[hist.index.date < today]
+
+        if hist.empty or len(hist) < 2:
+            failed.append({"symbol": symbol, "reason": "insufficient EOD rows"})
+            continue
+
+        # Keep last LOOKBACK_DAYS + 1 EOD rows
+        hist = hist.tail(LOOKBACK_DAYS + 1)
+
+        # EOD close = last fully closed session
+        eod_close  = round(float(hist["Close"].iloc[-1]), 2)
+        prev_close = round(float(hist["Close"].iloc[-2]), 2)
+        pct_chg    = round(((eod_close - prev_close) / prev_close) * 100, 2) if prev_close > 0 else 0
+
         today_vol = int(hist["Volume"].iloc[-1])
         avg_vol   = int(hist["Volume"].iloc[:-1].mean()) if len(hist) > 1 else 0
-        vol_ratio = round(today_vol / avg_vol, 4) if avg_vol > 0 else 0
-        close     = round(float(hist["Close"].iloc[-1]), 2)
-        prev_close= round(float(hist["Close"].iloc[-2]), 2)
-        pct_chg   = round(((close - prev_close) / prev_close) * 100, 2) if prev_close > 0 else 0
+        vol_ratio = round(today_vol / avg_vol, 4)       if avg_vol > 0 else 0
+
+        eod_date  = hist.index[-1].strftime("%Y-%m-%d")
 
         cname, sector = get_info(symbol, ticker)
 
@@ -154,17 +178,19 @@ for i, symbol in enumerate(stocks, 1):
             "Symbol"        : symbol,
             "Company Name"  : cname,
             "Sector"        : sector,
-            "Close"         : close,
+            "Close"         : eod_close,
             "Pct Change"    : pct_chg,
             "Today Volume"  : today_vol,
             "15D Avg Volume": avg_vol,
             "Volume Ratio"  : vol_ratio,
             "Days of Data"  : len(hist),
-            "Date"          : hist.index[-1].strftime("%Y-%m-%d"),
+            "Date"          : eod_date,
         })
+
         if i % 50 == 0 or i == len(stocks):
             print(f"  {i}/{len(stocks)}  OK:{len(results)}  Failed:{len(failed)}")
         time.sleep(0.05)
+
     except Exception as e:
         failed.append({"symbol": symbol, "reason": str(e)})
 
@@ -187,15 +213,21 @@ json_file  = os.path.join(OUTPUT_FOLDER, "latest.json")
 df_result.to_csv(csv_dated,  index=False)
 df_result.to_csv(csv_latest, index=False)
 
-sector_summary = df_result.groupby("Sector").size().sort_values(ascending=False).to_dict()
+sector_summary = (
+    df_result.groupby("Sector")
+    .size()
+    .sort_values(ascending=False)
+    .to_dict()
+)
 
 meta = {
-    "last_updated"  : datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-    "total_stocks"  : len(results),
-    "failed_stocks" : len(failed),
+    "last_updated" : datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    "total_stocks" : len(results),
+    "failed_stocks": len(failed),
     "sector_summary": sector_summary,
-    "data"          : df_result.to_dict(orient="records"),
+    "data"         : df_result.to_dict(orient="records"),
 }
+
 with open(json_file, "w", encoding="utf-8") as f:
     json.dump(meta, f, indent=2, ensure_ascii=False)
 
@@ -206,7 +238,7 @@ print("=" * 60)
 print(f"  Processed : {len(results)} | Failed: {len(failed)}")
 print(f"  Sectors   : {df_result['Sector'].nunique()}")
 for s, c in list(sector_summary.items())[:15]:
-    print(f"  {s:<35} {c}")
+    print(f"  {s:<40} {c}")
 print(f"  CSV  : {csv_latest}")
 print(f"  JSON : {json_file}")
 print("=" * 60)
