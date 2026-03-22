@@ -23,6 +23,18 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Segoe U
 .card .lb{font-size:.68rem;color:var(--txt3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;font-weight:600}
 .card .vl{font-size:2rem;font-weight:800;line-height:1}
 .c-blue .vl{color:var(--blue)}.c-green .vl{color:var(--green)}.c-red .vl{color:var(--red)}.c-yellow .vl{color:var(--yellow)}.c-purple .vl{color:var(--purple)}
+/* ── Data status banner ── */
+.data-banner{display:none;align-items:center;gap:10px;padding:8px 20px;font-size:.78rem;font-weight:500;border-bottom:1px solid transparent}
+.data-banner.show{display:flex}
+.data-banner .ban-icon{font-size:1rem;flex-shrink:0}
+.data-banner .ban-msg{flex:1}
+.data-banner .ban-close{cursor:pointer;opacity:.6;padding:2px 6px;font-size:.85rem}
+.data-banner .ban-close:hover{opacity:1}
+.ban-warn{background:#1c1400;border-color:#92400e;color:#fbbf24}
+.ban-err{background:#1a0505;border-color:#7f1d1d;color:#f87171}
+.ban-ok{background:#031a0e;border-color:#065f46;color:#6ee7b7}
+.ban-info{background:#0c1829;border-color:#1e3a5f;color:#93c5fd}
+/* ── Controls ── */
 .ctl{background:var(--bg2);padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .srch-wrap{position:relative;display:flex;align-items:center}
 .srch-wrap svg{position:absolute;left:9px;color:var(--txt3);width:14px;height:14px}
@@ -101,6 +113,12 @@ tbody td:last-child{border-right:none}
     </div>
   </div>
 </div>
+<!-- Data status banner: shown only when there is a warning or error -->
+<div class="data-banner" id="dataBanner">
+  <span class="ban-icon" id="banIcon"></span>
+  <span class="ban-msg" id="banMsg"></span>
+  <span class="ban-close" onclick="document.getElementById('dataBanner').classList.remove('show')" title="Dismiss">&#10005;</span>
+</div>
 <div class="stats">
   <div class="card c-blue"><div class="lb">Total Stocks</div><div class="vl" id="cTotal">&#8212;</div></div>
   <div class="card c-green"><div class="lb">Gainers</div><div class="vl" id="cGain">&#8212;</div></div>
@@ -162,6 +180,70 @@ const JSON_URL='https://raw.githubusercontent.com/VJTriumph/VolumeRatio/main/out
 const CSV_URL='https://raw.githubusercontent.com/VJTriumph/VolumeRatio/main/output/volume_ratio_latest.csv';
 let allData=[],filtData=[],curPage=1,sortCol='Volume Ratio',sortDir=-1,curSector='All';
 const perPage=()=>+(document.getElementById('ppFilt').value||25);
+
+/* ── Banner helpers ── */
+function showBanner(type,icon,msg){
+  const b=document.getElementById('dataBanner');
+  const i=document.getElementById('banIcon');
+  const m=document.getElementById('banMsg');
+  b.className='data-banner show ban-'+type;
+  i.textContent=icon;
+  m.innerHTML=msg;
+}
+function hideBanner(){
+  document.getElementById('dataBanner').classList.remove('show');
+}
+
+/* ── Data quality checks ── */
+function checkDataQuality(data,source){
+  if(!data||data.length===0){
+    showBanner('err','\u26A0','No data loaded. The data file may be empty or missing. <a href="https://github.com/VJTriumph/VolumeRatio/actions" target="_blank" style="color:inherit;text-decoration:underline">Check GitHub Actions</a> to see if the last run succeeded.');
+    return;
+  }
+
+  // Check data date freshness
+  const dates=data.map(d=>d['Date']).filter(Boolean);
+  if(dates.length){
+    const latest=dates.sort().pop();
+    const latestMs=new Date(latest).getTime();
+    const nowMs=Date.now();
+    const diffDays=Math.floor((nowMs-latestMs)/(1000*60*60*24));
+    if(diffDays>=3){
+      showBanner('err','\u26A0','Data is <b>'+diffDays+' days old</b> (last update: '+latest+'). The automated job may have failed. <a href="https://github.com/VJTriumph/VolumeRatio/actions" target="_blank" style="color:inherit;text-decoration:underline">Check GitHub Actions &#8599;</a>');
+      return;
+    }
+    if(diffDays===2){
+      showBanner('warn','\u26A0','Data is <b>2 days old</b> (last update: '+latest+'). Expected EOD update may be delayed.');
+      return;
+    }
+    if(diffDays===1){
+      showBanner('warn','\u26A0','Data is from <b>yesterday</b> ('+latest+'). Today\u2019s EOD update has not arrived yet.');
+      return;
+    }
+  }
+
+  // Check for missing critical fields
+  const missingClose=data.filter(d=>!d['Close']||+d['Close']===0).length;
+  const missingVol=data.filter(d=>!d['Today Volume']||+d['Today Volume']===0).length;
+  const missingVR=data.filter(d=>!d['Volume Ratio']||+d['Volume Ratio']===0).length;
+  if(missingVR>data.length*0.1){
+    showBanner('warn','\u26A0','<b>'+missingVR+' stocks</b> ('+Math.round(missingVR/data.length*100)+'%) have missing Volume Ratio values. Data may be incomplete.');
+    return;
+  }
+  if(missingClose>data.length*0.1){
+    showBanner('warn','\u26A0','<b>'+missingClose+' stocks</b> ('+Math.round(missingClose/data.length*100)+'%) have missing Close price. Data may be incomplete.');
+    return;
+  }
+
+  // Source fallback notice
+  if(source==='csv'){
+    showBanner('info','\u2139','Loaded from CSV fallback (JSON unavailable). Some fields may be limited.');
+    return;
+  }
+
+  hideBanner();
+}
+
 function fmtVol(n){
   n=+n;if(isNaN(n))return'&#8212;';
   if(n>=1e7)return(n/1e7).toFixed(2)+'Cr';
@@ -181,12 +263,14 @@ function parseCSV(txt){
     return obj;
   });
 }
+
 async function loadData(){
   document.getElementById('msgDiv').className='msg';
   document.getElementById('msgDiv').innerHTML='<span class="spin"></span>Loading data...';
   document.getElementById('msgDiv').style.display='';
   document.getElementById('tbl').style.display='none';
   document.getElementById('pagDiv').style.display='none';
+  hideBanner();
   try{
     const jr=await fetch(JSON_URL+'?t='+Date.now());
     if(!jr.ok)throw new Error('HTTP '+jr.status);
@@ -203,6 +287,7 @@ async function loadData(){
     document.getElementById('msgDiv').style.display='none';
     document.getElementById('tbl').style.display='';
     document.getElementById('pagDiv').style.display='';
+    checkDataQuality(allData,'json');
   }catch(jsonErr){
     try{
       const r=await fetch(CSV_URL+'?t='+Date.now());
@@ -220,12 +305,23 @@ async function loadData(){
       document.getElementById('msgDiv').style.display='none';
       document.getElementById('tbl').style.display='';
       document.getElementById('pagDiv').style.display='';
+      checkDataQuality(allData,'csv');
     }catch(e){
       document.getElementById('msgDiv').className='msg err';
-      document.getElementById('msgDiv').innerHTML='&#9888; Data fetch error: '+e.message+'<br><br><button class="btn-refresh" onclick="loadData()">&#8635; Retry</button>';
+      document.getElementById('msgDiv').innerHTML=
+        '<div style="font-size:2rem;margin-bottom:12px">&#9888;</div>'
+        +'<div style="font-size:1rem;font-weight:700;margin-bottom:8px;color:var(--red)">Data Load Failed</div>'
+        +'<div style="font-size:.82rem;color:var(--txt2);margin-bottom:16px">Could not fetch data from GitHub.<br>Error: <code style="color:var(--red)">'+e.message+'</code></div>'
+        +'<div style="font-size:.78rem;color:var(--txt3);margin-bottom:20px">'
+        +'Possible causes: no internet connection, GitHub is down, or the data files are missing.<br>'
+        +'<a href="https://github.com/VJTriumph/VolumeRatio/actions" target="_blank" style="color:var(--blue)">Check GitHub Actions &#8599;</a> &nbsp;|&nbsp; '
+        +'<a href="https://github.com/VJTriumph/VolumeRatio/tree/main/output" target="_blank" style="color:var(--blue)">Check output files &#8599;</a>'
+        +'</div>'
+        +'<button class="btn-refresh" onclick="loadData()" style="font-size:.85rem;padding:9px 20px">&#8635; Retry</button>';
     }
   }
 }
+
 function buildStats(data){
   const gain=data.filter(d=>+d['Pct Change']>0).length;
   const loss=data.filter(d=>+d['Pct Change']<0).length;
