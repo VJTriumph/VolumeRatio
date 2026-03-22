@@ -7,278 +7,289 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,sans-serif;background:#0d1117;color:#e6edf3;min-height:100vh}
-.hdr{background:linear-gradient(135deg,#161b22,#1f2937);padding:16px 24px;border-bottom:1px solid #30363d;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.hdr{background:linear-gradient(135deg,#161b22,#1f2937);padding:16px 24px;border-bottom:1px solid #30363d}
 .hdr h1{font-size:1.35rem;font-weight:700;color:#58a6ff}
 .hdr .mt{font-size:.8rem;color:#8b949e}.hdr .mt b{color:#c9d1d9}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;padding:16px 24px 0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;padding:16px 24px}
 .card{background:#161b22;border:1px solid #30363d;border-radius:9px;padding:13px;text-align:center}
 .card .lb{font-size:.68rem;color:#8b949e;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
 .card .vl{font-size:1.5rem;font-weight:700}
 .b .vl{color:#58a6ff}.g .vl{color:#3fb950}.r .vl{color:#f85149}.y .vl{color:#d29922}.p .vl{color:#bc8cff}
 /* SECTOR TABS */
-.sector-tabs{display:flex;gap:0;padding:16px 24px 0;overflow-x:auto;scrollbar-width:thin}
-.sector-tabs::-webkit-scrollbar{height:4px}
-.sector-tabs::-webkit-scrollbar-track{background:#161b22}
-.sector-tabs::-webkit-scrollbar-thumb{background:#30363d;border-radius:2px}
-.stab{background:#161b22;border:1px solid #30363d;border-bottom:none;color:#8b949e;padding:8px 14px;cursor:pointer;font-size:.8rem;white-space:nowrap;transition:all .15s;border-radius:6px 6px 0 0;margin-right:3px}
-.stab:hover{color:#e6edf3;border-color:#58a6ff}
-.stab.active{background:#21262d;color:#58a6ff;border-color:#58a6ff;font-weight:600}
-.stab .cnt{background:#21262d;border-radius:10px;padding:1px 6px;font-size:.72rem;margin-left:4px}
-.stab.active .cnt{background:#58a6ff;color:#0d1117}
+.sector-wrap{padding:0 24px;background:#0d1117;border-bottom:1px solid #21262d}
+.sector-tabs{display:flex;gap:6px;padding:10px 0;overflow-x:auto;scrollbar-width:thin;scrollbar-color:#30363d transparent;white-space:nowrap}
+.sector-tabs::-webkit-scrollbar{height:4px}.sector-tabs::-webkit-scrollbar-thumb{background:#30363d;border-radius:4px}
+.s-tab{padding:5px 13px;border-radius:20px;border:1px solid #30363d;background:#161b22;color:#8b949e;font-size:.78rem;cursor:pointer;white-space:nowrap;transition:all .15s}
+.s-tab:hover{border-color:#58a6ff;color:#58a6ff}
+.s-tab.active{background:#1f6feb;border-color:#1f6feb;color:#fff;font-weight:600}
 /* CONTROLS */
-.ctrl{display:flex;gap:8px;padding:10px 24px 14px;flex-wrap:wrap;align-items:center;background:#161b22;border:1px solid #30363d;border-top:none;border-radius:0 0 6px 6px;margin:0 24px}
-.ctrl input,.ctrl select{background:#0d1117;border:1px solid #30363d;border-radius:7px;color:#e6edf3;padding:6px 10px;font-size:.85rem;outline:none}
-.ctrl input{min-width:200px}.ctrl input:focus,.ctrl select:focus{border-color:#58a6ff}
-.bg{background:#21262d;border:1px solid #30363d;border-radius:20px;padding:3px 10px;font-size:.75rem;color:#8b949e}
-.action-btns{display:flex;gap:6px;margin-left:auto}
-.btn{padding:6px 12px;border-radius:6px;cursor:pointer;font-size:.8rem;border:1px solid}
-.btn-reset{background:#21262d;border-color:#30363d;color:#8b949e}
-.btn-reset:hover{border-color:#58a6ff;color:#58a6ff}
-.btn-refresh{background:#238636;border-color:#2ea043;color:#fff}
-.btn-refresh:hover{background:#2ea043}
+.ctl{padding:12px 24px;background:#0d1117;display:flex;flex-wrap:wrap;gap:10px;align-items:center;border-bottom:1px solid #21262d}
+.ctl input,.ctl select{background:#161b22;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:7px 11px;font-size:.82rem;outline:none}
+.ctl input:focus,.ctl select:focus{border-color:#58a6ff}
+.ctl input{width:220px}
+.ctl select{cursor:pointer}
+.btn{padding:7px 14px;border-radius:6px;border:1px solid #30363d;background:#21262d;color:#e6edf3;font-size:.82rem;cursor:pointer;transition:all .15s}
+.btn:hover{background:#30363d;border-color:#58a6ff}
+.res-info{font-size:.78rem;color:#8b949e;margin-left:auto}
 /* TABLE */
-.tw{padding:0 24px 24px;overflow-x:auto;margin-top:12px}
-table{width:100%;border-collapse:collapse;font-size:.84rem}
-thead th{background:#161b22;color:#8b949e;font-weight:600;font-size:.69rem;text-transform:uppercase;letter-spacing:.05em;padding:10px 10px;border-bottom:2px solid #30363d;white-space:nowrap;cursor:pointer;user-select:none}
+.tbl-wrap{padding:0 24px 24px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:12px}
+thead th{background:#161b22;color:#8b949e;text-transform:uppercase;font-size:.72rem;letter-spacing:.05em;padding:10px 12px;border-bottom:2px solid #30363d;white-space:nowrap;cursor:pointer;user-select:none;position:sticky;top:0}
 thead th:hover{color:#58a6ff}
-thead th.s{color:#58a6ff}
-tbody tr{border-bottom:1px solid #21262d}
+thead th .arr{opacity:.4;font-size:.7rem;margin-left:3px}
+thead th.sort-asc .arr::after{content:'\25B2'}
+thead th.sort-desc .arr::after{content:'\25BC'}
+thead th:not(.sort-asc):not(.sort-desc) .arr::after{content:'\25B2\25BC';font-size:.55rem}
+tbody tr{border-bottom:1px solid #21262d;transition:background .1s}
 tbody tr:hover{background:#161b22}
-tbody td{padding:9px 10px;white-space:nowrap}
-.rk{font-weight:700;color:#8b949e;text-align:center;min-width:42px}
-.t3{color:#ffd700!important}
-.sm{font-weight:700;color:#58a6ff}
-.sm small{display:block;font-size:.7rem;color:#6e7681;font-weight:400}
-.sc{font-size:.75rem;color:#8b949e;background:#21262d;padding:2px 7px;border-radius:4px}
-.pc{font-weight:700;padding:3px 8px;border-radius:4px;font-size:.79rem}
-.pos{background:rgba(63,185,80,.15);color:#3fb950}
-.neg{background:rgba(248,81,73,.15);color:#f85149}
-.neu{background:#21262d;color:#8b949e}
-.rc{display:flex;align-items:center;gap:6px}
-.rb{flex:1;background:#21262d;border-radius:3px;height:5px;min-width:44px}
-.rbi{height:5px;border-radius:3px}
-.rv{font-weight:700;min-width:40px;text-align:right;font-size:.82rem}
-.vo small{display:block;font-size:.69rem;color:#6e7681}
-.pr{font-weight:500}
-.pg{display:flex;align-items:center;justify-content:center;gap:5px;padding:8px 24px 20px;flex-wrap:wrap}
-.pg button{background:#161b22;border:1px solid #30363d;color:#e6edf3;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:.79rem}
-.pg button:hover{border-color:#58a6ff;color:#58a6ff}
-.pg .act{background:#58a6ff!important;border-color:#58a6ff!important;color:#0d1117!important;font-weight:700}
-.pg button:disabled{opacity:.3;cursor:not-allowed}
-.pi{color:#8b949e;font-size:.79rem}
-@media(max-width:600px){.hdr,.stats,.sector-tabs,.ctrl,.tw,.pg{padding-left:12px;padding-right:12px}.ctrl input{min-width:100%}}
+tbody td{padding:9px 12px;white-space:nowrap}
+td.rank{color:#8b949e;font-size:.75rem;width:40px}
+td.sym a{color:#58a6ff;text-decoration:none;font-weight:600}
+td.sym a:hover{text-decoration:underline}
+td.cname{color:#c9d1d9;max-width:180px;overflow:hidden;text-overflow:ellipsis}
+td.sect{font-size:.75rem;padding:3px 8px;border-radius:12px;background:#1f2937;color:#79c0ff;white-space:nowrap}
+td.pos{color:#3fb950}td.neg{color:#f85149}td.neu{color:#8b949e}
+td.vr{font-weight:700}
+.vr-hi{color:#f85149}.vr-md{color:#d29922}.vr-lo{color:#3fb950}
+/* PAGINATION */
+.pag{display:flex;justify-content:center;align-items:center;gap:8px;padding:14px 24px;font-size:.82rem}
+.pag button{padding:5px 11px;border-radius:5px;border:1px solid #30363d;background:#161b22;color:#e6edf3;cursor:pointer}
+.pag button:disabled{opacity:.35;cursor:default}
+.pag button.cur{background:#1f6feb;border-color:#1f6feb;font-weight:700}
+.pag .pi{color:#8b949e}
+/* loading */
+.loading{text-align:center;padding:60px;color:#58a6ff;font-size:1rem}
+.err{text-align:center;padding:40px;color:#f85149}
+footer{text-align:center;padding:12px;font-size:.75rem;color:#484f58;border-top:1px solid #21262d}
 </style>
 </head>
 <body>
-
 <div class="hdr">
-  <h1>&#128202; Volume Ratio Dashboard</h1>
-  <div class="mt">Source: <b>VJTriumph/VolumeRatio</b> &nbsp;|&nbsp; Updated: <b id="hdate">Loading...</b></div>
+  <h1>&#9654; Volume Ratio Dashboard</h1>
+  <div class="mt">NSE Stocks &mdash; <b id="lastUp">Loading...</b></div>
 </div>
 
-<div class="stats">
-  <div class="card b"><div class="lb">Total Stocks</div><div class="vl" id="st">-</div></div>
-  <div class="card g"><div class="lb">Gainers</div><div class="vl" id="sg">-</div></div>
-  <div class="card r"><div class="lb">Losers</div><div class="vl" id="sl">-</div></div>
-  <div class="card y"><div class="lb">Avg Vol Ratio</div><div class="vl" id="sr">-</div></div>
-  <div class="card p"><div class="lb">Extreme (&gt;5x)</div><div class="vl" id="se">-</div></div>
+<div class="stats" id="statsRow">
+  <div class="card b"><div class="lb">Total Stocks</div><div class="vl" id="cTotal">—</div></div>
+  <div class="card g"><div class="lb">Gainers</div><div class="vl" id="cGain">—</div></div>
+  <div class="card r"><div class="lb">Losers</div><div class="vl" id="cLoss">—</div></div>
+  <div class="card y"><div class="lb">Avg Vol Ratio</div><div class="vl" id="cAvg">—</div></div>
+  <div class="card p"><div class="lb">Sectors</div><div class="vl" id="cSect">—</div></div>
 </div>
 
-<div class="sector-tabs" id="sector-tabs"></div>
+<div class="sector-wrap">
+  <div class="sector-tabs" id="sectorTabs"></div>
+</div>
 
-<div class="ctrl" style="margin:0 24px">
-  <input type="text" id="srch" oninput="applyFilters()" onkeyup="applyFilters()" placeholder="&#128269; Search symbol or company..."/>
-  <select id="frat" onchange="applyFilters()">
-    <option value="all">All Ratios</option>
-    <option value="10">&#8805; 10x Extreme</option>
-    <option value="5">&#8805; 5x High</option>
-    <option value="3">&#8805; 3x Elevated</option>
-    <option value="2">&#8805; 2x</option>
+<div class="ctl">
+  <input id="srch" placeholder="&#128269; Search symbol or company..." oninput="applyFilters()"/>
+  <select id="ratioFilt" onchange="applyFilters()">
+    <option value="0">All Vol Ratio</option>
+    <option value="2">&gt; 2x</option>
+    <option value="5">&gt; 5x</option>
+    <option value="10">&gt; 10x</option>
   </select>
-  <select id="fpct" onchange="applyFilters()">
+  <select id="chgFilt" onchange="applyFilters()">
     <option value="all">All % Change</option>
-    <option value="pos">Gainers &#8593;</option>
-    <option value="neg">Losers &#8595;</option>
+    <option value="pos">Positive only</option>
+    <option value="neg">Negative only</option>
   </select>
-  <select id="pp" onchange="ppSz=Number(this.value);curPg=1;renderTable()">
-    <option value="25">25/page</option>
-    <option value="50">50/page</option>
-    <option value="100">100/page</option>
-    <option value="250">250/page</option>
-  </select>
-  <span class="bg" id="cnt">-</span>
-  <div class="action-btns">
-    <button class="btn btn-reset" onclick="resetFilters()">&#8635; Reset</button>
-    <button class="btn btn-refresh" onclick="loadData()">&#8635; Refresh</button>
-  </div>
+  <button class="btn" onclick="resetFilters()">&#8635; Reset</button>
+  <button class="btn" onclick="loadData()">&#8635; Refresh</button>
+  <span class="res-info" id="resInfo"></span>
 </div>
 
-<div class="tw">
-<table>
-<thead><tr>
-  <th data-c="Rank" class="s" onclick="sortBy(this)">Rank &#8593;</th>
-  <th data-c="Symbol" onclick="sortBy(this)">Symbol &#8597;</th>
-  <th data-c="Sector" onclick="sortBy(this)">Sector &#8597;</th>
-  <th data-c="LTP" onclick="sortBy(this)">LTP &#8597;</th>
-  <th data-c="Pct Change" onclick="sortBy(this)">% Chg &#8597;</th>
-  <th data-c="Today Volume" onclick="sortBy(this)">Today Vol &#8597;</th>
-  <th data-c="15D Avg Volume" onclick="sortBy(this)">15D Avg &#8597;</th>
-  <th data-c="Volume Ratio" onclick="sortBy(this)">Vol Ratio &#8597;</th>
-  <th data-c="Open" onclick="sortBy(this)">Open &#8597;</th>
-  <th data-c="High" onclick="sortBy(this)">High &#8597;</th>
-  <th data-c="Low" onclick="sortBy(this)">Low &#8597;</th>
-</tr></thead>
-<tbody id="tb"></tbody>
-</table>
+<div class="tbl-wrap">
+  <div class="loading" id="msg">Loading data...</div>
+  <table id="tbl" style="display:none">
+    <thead>
+      <tr>
+        <th onclick="sortBy('Rank')" data-col="Rank">Rank<span class="arr"></span></th>
+        <th onclick="sortBy('Symbol')" data-col="Symbol">Symbol<span class="arr"></span></th>
+        <th onclick="sortBy('Company Name')" data-col="Company Name">Company<span class="arr"></span></th>
+        <th onclick="sortBy('Sector')" data-col="Sector">Sector<span class="arr"></span></th>
+        <th onclick="sortBy('Pct Change')" data-col="Pct Change">% Chg<span class="arr"></span></th>
+        <th onclick="sortBy('Volume Ratio')" data-col="Volume Ratio">Vol Ratio<span class="arr"></span></th>
+        <th onclick="sortBy('Today Volume')" data-col="Today Volume">Today Vol<span class="arr"></span></th>
+        <th onclick="sortBy('15D Avg Volume')" data-col="15D Avg Volume">15D Avg Vol<span class="arr"></span></th>
+        <th onclick="sortBy('Date')" data-col="Date">Date<span class="arr"></span></th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
 </div>
-<div class="pg" id="pg"></div>
+<div class="pag" id="pagDiv" style="display:none"></div>
+<footer id="foot"></footer>
 
 <script>
 const CSV_URL = 'https://raw.githubusercontent.com/VJTriumph/VolumeRatio/main/output/volume_ratio_latest.csv';
-let ALL=[], fil=[], sC='Rank', sD=1, curPg=1, ppSz=25, activeSector='All';
+let allData=[], filtData=[], curPage=1, perPage=50, sortCol='Volume Ratio', sortDir=-1, curSector='All';
 
-function fv(v){v=Number(v);if(v>=1e7)return(v/1e7).toFixed(2)+'Cr';if(v>=1e5)return(v/1e5).toFixed(2)+'L';if(v>=1e3)return(v/1e3).toFixed(1)+'K';return String(v);}
-function fn(v){return Number(v).toLocaleString('en-IN');}
-function rc(r){r=Number(r);if(r>=10)return'#f85149';if(r>=5)return'#d29922';if(r>=2)return'#3fb950';return'#58a6ff';}
-function rp(r){return Math.min(100,(Number(r)/65)*100).toFixed(1);}
+function fmt(n){if(n==null)return'—';n=+n;if(n>=1e7)return(n/1e7).toFixed(2)+'Cr';if(n>=1e5)return(n/1e5).toFixed(2)+'L';return n.toLocaleString();}
+function fmtVR(v){v=+v;if(v>=10)return'<span class="vr-hi">'+v.toFixed(2)+'x</span>';if(v>=3)return'<span class="vr-md">'+v.toFixed(2)+'x</span>';return'<span class="vr-lo">'+v.toFixed(2)+'x</span>';}
+function fmtPct(p){p=+p;let cls=p>0?'pos':p<0?'neg':'neu';return'<span class="'+cls+'">'+(p>0?'+':'')+p.toFixed(2)+'%</span>';}
 
-function parseCSV(text){
-  const lines=text.trim().split('\n');
+function parseCSV(txt){
+  const lines=txt.trim().split('\n');
   const hdrs=lines[0].split(',').map(h=>h.trim());
-  return lines.slice(1).map(line=>{
-    const v=line.split(',');
-    const o={};
-    hdrs.forEach((h,i)=>{o[h]=v[i]?v[i].trim():'';});
-    return o;
-  }).filter(r=>r['Rank']&&r['Symbol']);
+  return lines.slice(1).map(l=>{
+    const vals=l.split(',');
+    const obj={};
+    hdrs.forEach((h,i)=>obj[h]=(vals[i]||'').trim());
+    return obj;
+  });
+}
+
+async function loadData(){
+  document.getElementById('msg').style.display='';
+  document.getElementById('msg').textContent='Loading data...';
+  document.getElementById('tbl').style.display='none';
+  document.getElementById('pagDiv').style.display='none';
+  try{
+    const r=await fetch(CSV_URL+'?t='+Date.now());
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const txt=await r.text();
+    allData=parseCSV(txt);
+    buildStats(allData);
+    buildSectorTabs(allData);
+    applyFilters();
+    document.getElementById('msg').style.display='none';
+    document.getElementById('tbl').style.display='';
+    document.getElementById('pagDiv').style.display='';
+  }catch(e){
+    document.getElementById('msg').className='err';
+    document.getElementById('msg').textContent='Error loading data: '+e.message;
+  }
+}
+
+function buildStats(data){
+  const gain=data.filter(d=>+d['Pct Change']>0).length;
+  const loss=data.filter(d=>+d['Pct Change']<0).length;
+  const avgVR=(data.reduce((s,d)=>s+(+d['Volume Ratio']||0),0)/data.length).toFixed(2);
+  const sects=new Set(data.map(d=>d['Sector']||'Other'));
+  document.getElementById('cTotal').textContent=data.length;
+  document.getElementById('cGain').textContent=gain;
+  document.getElementById('cLoss').textContent=loss;
+  document.getElementById('cAvg').textContent=avgVR+'x';
+  document.getElementById('cSect').textContent=sects.size;
+  // last updated from date column
+  const dates=data.map(d=>d['Date']).filter(Boolean).sort();
+  if(dates.length)document.getElementById('lastUp').innerHTML='Last data: <b>'+dates[dates.length-1]+'</b>';
 }
 
 function buildSectorTabs(data){
-  const counts={};
-  data.forEach(r=>{ const s=r['Sector']||'Other'; counts[s]=(counts[s]||0)+1; });
-  const sectors=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
-  const tabsEl=document.getElementById('sector-tabs');
-  let html='<div class="stab active" onclick="setSector(this,\'All\')" data-s="All">All <span class="cnt">'+data.length+'</span></div>';
-  sectors.forEach(([s,c])=>{
-    html+='<div class="stab" onclick="setSector(this,\''+s.replace(/'/g,"\\'")+'\')">'+s+' <span class="cnt">'+c+'</span></div>';
+  const cnt={};
+  data.forEach(d=>{const s=d['Sector']||'Other';cnt[s]=(cnt[s]||0)+1;});
+  const sorted=Object.entries(cnt).sort((a,b)=>b[1]-a[1]);
+  const tabs=document.getElementById('sectorTabs');
+  tabs.innerHTML='';
+  const all=document.createElement('button');
+  all.className='s-tab'+(curSector==='All'?' active':'');
+  all.textContent='All ('+data.length+')';
+  all.onclick=()=>setSector('All');
+  tabs.appendChild(all);
+  sorted.forEach(([s,c])=>{
+    const btn=document.createElement('button');
+    btn.className='s-tab'+(curSector===s?' active':'');
+    btn.textContent=s+' ('+c+')';
+    btn.onclick=()=>setSector(s);
+    tabs.appendChild(btn);
   });
-  tabsEl.innerHTML=html;
 }
 
-window.setSector=function(el,sector){
-  document.querySelectorAll('.stab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  activeSector=sector;
-  curPg=1;
+function setSector(s){
+  curSector=s;
+  document.querySelectorAll('.s-tab').forEach(b=>{
+    b.classList.toggle('active',b.textContent.startsWith(s==='All'?'All':s+' '));
+  });
+  curPage=1;
   applyFilters();
-};
-
-function updateStats(data){
-  document.getElementById('hdate').textContent=data[0]&&data[0]['Date']?data[0]['Date']:'N/A';
-  document.getElementById('st').textContent=ALL.length;
-  document.getElementById('sg').textContent=ALL.filter(r=>Number(r['Pct Change'])>0).length;
-  document.getElementById('sl').textContent=ALL.filter(r=>Number(r['Pct Change'])<0).length;
-  const avg=ALL.reduce((a,r)=>a+Number(r['Volume Ratio']),0)/ALL.length;
-  document.getElementById('sr').textContent=avg.toFixed(2)+'x';
-  document.getElementById('se').textContent=ALL.filter(r=>Number(r['Volume Ratio'])>=5).length;
 }
 
-window.applyFilters=function(){
-  const q=(document.getElementById('srch').value||'').toLowerCase();
-  const rf=document.getElementById('frat').value;
-  const pf=document.getElementById('fpct').value;
-  fil=ALL.filter(r=>{
-    if(activeSector!=='All'&&r['Sector']!==activeSector)return false;
-    if(q&&(r['Symbol']+r['Company Name']).toLowerCase().indexOf(q)===-1)return false;
-    const pn=Number(r['Pct Change']);
-    if(pf==='pos'&&pn<=0)return false;
-    if(pf==='neg'&&pn>=0)return false;
-    if(rf!=='all'&&Number(r['Volume Ratio'])<Number(rf))return false;
+function applyFilters(){
+  const srch=(document.getElementById('srch').value||'').toLowerCase();
+  const minVR=+(document.getElementById('ratioFilt').value||0);
+  const chgF=document.getElementById('chgFilt').value;
+  filtData=allData.filter(d=>{
+    if(curSector!=='All'&&(d['Sector']||'Other')!==curSector)return false;
+    if(srch&&!(d['Symbol']||'').toLowerCase().includes(srch)&&!(d['Company Name']||'').toLowerCase().includes(srch))return false;
+    if(minVR&&(+d['Volume Ratio']||0)<minVR)return false;
+    if(chgF==='pos'&&(+d['Pct Change']||0)<=0)return false;
+    if(chgF==='neg'&&(+d['Pct Change']||0)>=0)return false;
     return true;
   });
-  const nc=['Rank','LTP','Pct Change','Today Volume','15D Avg Volume','Volume Ratio','Open','High','Low'];
-  fil.sort((a,b)=>{
-    let av=nc.includes(sC)?Number(a[sC]):a[sC];
-    let bv=nc.includes(sC)?Number(b[sC]):b[sC];
-    if(av<bv)return -sD;if(av>bv)return sD;return 0;
+  // sort
+  filtData.sort((a,b)=>{
+    let av=a[sortCol],bv=b[sortCol];
+    if(!isNaN(+av)&&!isNaN(+bv)){av=+av;bv=+bv;}
+    if(av<bv)return sortDir;if(av>bv)return -sortDir;return 0;
   });
-  curPg=1;
-  renderTable();
-};
+  document.getElementById('resInfo').textContent='Showing '+filtData.length+' stocks';
+  renderPage();
+}
 
-window.resetFilters=function(){
-  document.getElementById('srch').value='';
-  document.getElementById('frat').value='all';
-  document.getElementById('fpct').value='all';
-  activeSector='All';
-  document.querySelectorAll('.stab').forEach((t,i)=>{t.classList.toggle('active',i===0);});
+function sortBy(col){
+  if(sortCol===col)sortDir*=-1;else{sortCol=col;sortDir=-1;}
+  document.querySelectorAll('thead th').forEach(th=>{
+    th.classList.remove('sort-asc','sort-desc');
+    if(th.dataset.col===col)th.classList.add(sortDir===1?'sort-asc':'sort-desc');
+  });
+  curPage=1;
   applyFilters();
-};
+}
 
-window.sortBy=function(th){
-  const c=th.dataset.c;
-  if(sC===c)sD*=-1;else{sC=c;sD=1;}
-  document.querySelectorAll('thead th').forEach(t=>t.classList.remove('s'));
-  th.classList.add('s');
-  applyFilters();
-};
-
-function renderTable(){
-  const tb=document.getElementById('tb');
-  const st=(curPg-1)*ppSz,en=st+ppSz;
-  const sl=fil.slice(st,en);
-  tb.innerHTML=sl.map(r=>{
-    const pn=Number(r['Pct Change']),pc=pn>0?'pos':pn<0?'neg':'neu',ps=pn>0?'+':'';
-    const rn=Number(r['Rank']),rat=Number(r['Volume Ratio']),col=rc(rat);
-    const sym=(r['Symbol']||'').replace('.NS','').replace('.BO','');
-    const co=(r['Company Name']||'').replace('.NS','').replace('.BO','');
-    const sec=r['Sector']||'Other';
-    return '<tr>'
-      +'<td class="rk'+(rn<=3?' t3':'')+'"><b>#'+rn+'</b></td>'
-      +'<td><span class="sm">'+sym+'<small>'+co+'</small></span></td>'
-      +'<td><span class="sc">'+sec+'</span></td>'
-      +'<td class="pr">&#8377;'+fn(r['LTP'])+'</td>'
-      +'<td><span class="pc '+pc+'">'+ps+pn.toFixed(2)+'%</span></td>'
-      +'<td class="vo">'+fv(r['Today Volume'])+'<small>'+fn(r['Today Volume'])+'</small></td>'
-      +'<td class="vo">'+fv(r['15D Avg Volume'])+'<small>'+fn(r['15D Avg Volume'])+'</small></td>'
-      +'<td><div class="rc"><div class="rb"><div class="rbi" style="width:'+rp(rat)+'%;background:'+col+'"></div></div><span class="rv" style="color:'+col+'">'+rat.toFixed(2)+'x</span></div></td>'
-      +'<td class="pr">&#8377;'+fn(r['Open'])+'</td>'
-      +'<td class="pr">&#8377;'+fn(r['High'])+'</td>'
-      +'<td class="pr">&#8377;'+fn(r['Low'])+'</td>'
-      +'</tr>';
+function renderPage(){
+  const start=(curPage-1)*perPage,end=Math.min(start+perPage,filtData.length);
+  const slice=filtData.slice(start,end);
+  const tbody=document.getElementById('tbody');
+  tbody.innerHTML=slice.map((d,i)=>{
+    const sym=(d['Symbol']||'').replace('.NS','').replace('.BO','');
+    const link='https://finance.yahoo.com/quote/'+encodeURIComponent(d['Symbol']||'');
+    const vr=+d['Volume Ratio']||0;
+    return `<tr>
+      <td class="rank">${start+i+1}</td>
+      <td class="sym"><a href="${link}" target="_blank">${sym}</a></td>
+      <td class="cname">${d['Company Name']||sym}</td>
+      <td><span class="sect">${d['Sector']||'Other'}</span></td>
+      <td>${fmtPct(d['Pct Change'])}</td>
+      <td class="vr">${fmtVR(vr)}</td>
+      <td>${fmt(d['Today Volume'])}</td>
+      <td>${fmt(d['15D Avg Volume'])}</td>
+      <td>${d['Date']||'—'}</td>
+    </tr>`;
   }).join('');
-  document.getElementById('cnt').textContent=fil.length+' stocks';
-  renderPg();
+  renderPagination();
 }
 
-function renderPg(){
-  const tot=Math.ceil(fil.length/ppSz),el=document.getElementById('pg');
-  if(tot<=1){el.innerHTML='';return;}
-  let h='<button onclick="gp('+(curPg-1)+')" '+(curPg===1?'disabled':'')+'>&#8249; Prev</button>';
-  const rng=[];
-  for(let i=1;i<=tot;i++){if(i===1||i===tot||Math.abs(i-curPg)<=2)rng.push(i);else if(rng[rng.length-1]!=='...')rng.push('...');}
-  rng.forEach(p=>{if(p==='...')h+='<span class="pi">...</span>';else h+='<button class="'+(p===curPg?'act':'')+'" onclick="gp('+p+')">'+p+'</button>';});
-  h+='<button onclick="gp('+(curPg+1)+')" '+(curPg===tot?'disabled':'')+'>Next &#8250;</button><span class="pi"> Page '+curPg+'/'+tot+' ('+fil.length+')</span>';
-  el.innerHTML=h;
+function renderPagination(){
+  const total=Math.ceil(filtData.length/perPage);
+  const pag=document.getElementById('pagDiv');
+  if(total<=1){pag.innerHTML='';return;}
+  let html='';
+  html+='<button onclick="goPage('+Math.max(1,curPage-1)+')" '+(curPage===1?'disabled':'')+'>&#8592; Prev</button>';
+  const start=Math.max(1,curPage-2),end=Math.min(total,curPage+2);
+  if(start>1)html+='<button onclick="goPage(1)">1</button>'+(start>2?'<span class="pi">...</span>':'');
+  for(let p=start;p<=end;p++)html+='<button class="'+(p===curPage?'cur':'')+'" onclick="goPage('+p+')">'+p+'</button>';
+  if(end<total)html+=(end<total-1?'<span class="pi">...</span>':'')+'<button onclick="goPage('+total+')">'+total+'</button>';
+  html+='<button onclick="goPage('+Math.min(total,curPage+1)+')" '+(curPage===total?'disabled':'')+'> Next &#8594;</button>';
+  html+='<span class="pi">Page '+curPage+' / '+total+'</span>';
+  pag.innerHTML=html;
 }
 
-window.gp=function(p){const t=Math.ceil(fil.length/ppSz);if(p<1||p>t)return;curPg=p;renderTable();scrollTo(0,0);};
-
-window.loadData=function(){
-  document.getElementById('hdate').textContent='Loading...';
-  fetch(CSV_URL+'?t='+Date.now())
-    .then(r=>r.text())
-    .then(text=>{
-      ALL=parseCSV(text);
-      fil=[...ALL];
-      updateStats(ALL);
-      buildSectorTabs(ALL);
-      applyFilters();
-    })
-    .catch(e=>{ document.getElementById('hdate').textContent='Error: '+e.message; });
-};
+function goPage(p){curPage=p;renderPage();}
+function resetFilters(){
+  document.getElementById('srch').value='';
+  document.getElementById('ratioFilt').value='0';
+  document.getElementById('chgFilt').value='all';
+  curSector='All';
+  document.querySelectorAll('.s-tab').forEach(b=>b.classList.remove('active'));
+  const allTab=document.querySelector('.s-tab');
+  if(allTab)allTab.classList.add('active');
+  curPage=1;
+  applyFilters();
+}
 
 loadData();
 </script>
 </body>
-   </html>
+</html>
