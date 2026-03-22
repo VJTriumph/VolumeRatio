@@ -10,7 +10,7 @@ import json
 # ─────────────────────────────────────────────
 DATA_FOLDER   = "data"
 OUTPUT_FOLDER = "output"
-STOCK_LIST    = os.path.join(DATA_FOLDER, "stock_list.csv")
+STOCK_LIST    = os.path.join(DATA_FOLDER, "niftytotalmarket_list .csv")
 LOOKBACK_DAYS = 15   # trading days for avg volume
 
 # ─────────────────────────────────────────────
