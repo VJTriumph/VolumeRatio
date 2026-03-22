@@ -9,7 +9,7 @@ DATA_FOLDER    = "data"
 OUTPUT_FOLDER  = "output"
 STOCK_LIST     = os.path.join(DATA_FOLDER, "niftytotalmarket_list.csv")
 LOOKBACK_DAYS  = 15
-FETCH_INFO     = False  # set True to fetch from Yahoo when sector missing
+FETCH_INFO     = False
 
 os.makedirs(DATA_FOLDER,   exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
@@ -38,20 +38,19 @@ sector_col  = find_col(df_stocks, ["sector", "industry", "segment"])
 name_col    = name_col   if name_col   in df_stocks.columns else None
 sector_col  = sector_col if sector_col in df_stocks.columns else None
 
-# Build a lookup dict: base_symbol (no .NS/.BO) -> (name, sector)
+# Build lookup dict: base_symbol (no .NS/.BO) -> (name, sector)
 sector_map = {}
 for _, row in df_stocks.iterrows():
-    sym = str(row[symbols_col]).strip()
+    sym  = str(row[symbols_col]).strip()
     base = sym.replace(".NS","").replace(".BO","").upper()
     sname  = str(row[name_col]).strip()   if name_col   else sym
     ssect  = str(row[sector_col]).strip() if sector_col else "Other"
     if ssect in ("nan","N/A","","None"): ssect = "Other"
     sector_map[base] = (sname, ssect)
-    sector_map[sym]  = (sname, ssect)   # also store with suffix
+    sector_map[sym]  = (sname, ssect)
 
 stocks = df_stocks[symbols_col].dropna().str.strip().tolist()
 
-# Add .NS suffix if not already present
 def ensure_ns(sym):
     if sym.endswith(".NS") or sym.endswith(".BO"):
         return sym
@@ -79,22 +78,21 @@ sector_cache = load_sector_cache()
 print(f"Sector cache: {len(sector_cache)} entries")
 
 YAHOO_SECTOR_MAP = {
-    "Financial Services"   : "Financial Services",
-    "Technology"           : "Technology",
-    "Healthcare"           : "Healthcare",
-    "Consumer Cyclical"    : "Consumer Discretionary",
-    "Consumer Defensive"   : "Fast Moving Consumer Goods",
-    "Basic Materials"      : "Chemicals",
-    "Industrials"          : "Capital Goods",
-    "Energy"               : "Energy",
+    "Financial Services"    : "Financial Services",
+    "Technology"            : "Technology",
+    "Healthcare"            : "Healthcare",
+    "Consumer Cyclical"     : "Consumer Discretionary",
+    "Consumer Defensive"    : "Fast Moving Consumer Goods",
+    "Basic Materials"       : "Chemicals",
+    "Industrials"           : "Capital Goods",
+    "Energy"                : "Energy",
     "Communication Services": "Telecom",
-    "Real Estate"          : "Real Estate",
-    "Utilities"            : "Power",
+    "Real Estate"           : "Real Estate",
+    "Utilities"             : "Power",
 }
 
 def get_info(symbol, ticker_obj):
     base = symbol.replace(".NS","").replace(".BO","").upper()
-    # 1. Check our CSV map first
     if base in sector_map:
         sname, ssect = sector_map[base]
         if ssect and ssect not in ("Other","nan","N/A",""):
@@ -108,12 +106,10 @@ def get_info(symbol, ticker_obj):
     else:
         name_fallback = base
 
-    # 2. Check cache
     if symbol in sector_cache:
         c = sector_cache[symbol]
         return c.get("name", name_fallback), c.get("sector", "Other")
 
-    # 3. Yahoo Finance (only if FETCH_INFO=True)
     if FETCH_INFO:
         try:
             info    = ticker_obj.info
@@ -158,6 +154,7 @@ for i, symbol in enumerate(stocks, 1):
             "Symbol"        : symbol,
             "Company Name"  : cname,
             "Sector"        : sector,
+            "Close"         : close,
             "Pct Change"    : pct_chg,
             "Today Volume"  : today_vol,
             "15D Avg Volume": avg_vol,
