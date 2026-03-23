@@ -251,7 +251,7 @@ function hideBanner(){
 }
 
 /* ── Data quality checks ── */
-function checkDataQuality(data,source){
+function checkDataQuality(data,source,lastUpdated){
   if(!data||data.length===0){
     showBanner('err','\u26A0','No data loaded. The data file may be empty or missing. <a href="https://github.com/VJTriumph/VolumeRatio/actions" target="_blank" style="color:inherit;text-decoration:underline">Check GitHub Actions</a> to see if the last run succeeded.');
     return;
@@ -263,7 +263,7 @@ function checkDataQuality(data,source){
     const latest=dates.sort().pop();
     const latestMs=new Date(latest).getTime();
     const nowMs=Date.now();
-    const diffDays=Math.floor((nowMs-latestMs)/(1000*60*60*24));
+    const jobRanRecently=lastUpdated&&(nowMs-new Date(lastUpdated).getTime()<36*60*60*1000);const diffDays=jobRanRecently?0:Math.floor((nowMs-latestMs)/(1000*60*60*24));
     if(diffDays>=3){
       showBanner('err','\u26A0','Data is <b>'+diffDays+' days old</b> (last update: '+latest+'). The automated job may have failed. <a href="https://github.com/VJTriumph/VolumeRatio/actions" target="_blank" style="color:inherit;text-decoration:underline">Check GitHub Actions &#8599;</a>');
       return;
@@ -343,7 +343,7 @@ async function loadData(){
     document.getElementById('msgDiv').style.display='none';
     document.getElementById('tbl').style.display='';
     document.getElementById('pagDiv').style.display='';
-    checkDataQuality(allData,'json');
+    checkDataQuality(allData,'json',jdata.last_updated);
   }catch(jsonErr){
     try{
       const r=await fetch(CSV_URL+'?t='+Date.now());
