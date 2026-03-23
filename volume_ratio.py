@@ -1,4 +1,4 @@
-himport yfinance as yf
+import yfinance as yf
 import pandas as pd
 import os
 from datetime import datetime, timedelta
@@ -14,7 +14,7 @@ FETCH_INFO    = False
 os.makedirs(DATA_FOLDER,   exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
-print("=" * 60)h
+print("=" * 60)
 print("  VOLUME RATIO DASHBOARD - DATA UPDATER")
 print("=" * 60)
 print("Reading stock list...")
