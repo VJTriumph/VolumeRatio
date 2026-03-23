@@ -1,4 +1,4 @@
-import yfinance as yf
+himport yfinance as yf
 import pandas as pd
 import os
 from datetime import datetime, timedelta
@@ -14,7 +14,7 @@ FETCH_INFO    = False
 os.makedirs(DATA_FOLDER,   exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
-print("=" * 60)
+print("=" * 60)h
 print("  VOLUME RATIO DASHBOARD - DATA UPDATER")
 print("=" * 60)
 print("Reading stock list...")
@@ -126,9 +126,8 @@ def get_info(symbol, ticker_obj):
 
 # ── Date window ────────────────────────────────────────────────
 # Always fetch enough history to get confirmed EOD data.
-# We use end_date = today + 1 day so yfinance returns up to yesterday's EOD bar.
-# The most recent fully closed trading session is hist.iloc[-1] after filtering
-# out any partial (today) bar.
+# end_dt = today + 1 (exclusive upper bound) so yfinance includes today's EOD bar.
+# Since the job runs after market close, today's bar is a fully closed session.
 today     = datetime.today().date()
 end_dt    = today + timedelta(days=1)          # exclusive upper bound for yfinance
 start_dt  = today - timedelta(days=LOOKBACK_DAYS * 3)
@@ -150,9 +149,8 @@ for i, symbol in enumerate(stocks, 1):
             failed.append({"symbol": symbol, "reason": "no data"})
             continue
 
-        # Drop any row whose date is today (intraday / incomplete bar)
+        # Normalize timezone
         hist.index = hist.index.tz_localize(None) if hist.index.tzinfo else hist.index
-        hist = hist[hist.index.date < today]
 
         if hist.empty or len(hist) < 2:
             failed.append({"symbol": symbol, "reason": "insufficient EOD rows"})
