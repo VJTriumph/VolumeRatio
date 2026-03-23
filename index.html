@@ -96,6 +96,34 @@ tbody td:last-child{border-right:none}
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* ── Tab switcher ── */
+.tab-bar{display:flex;align-items:center;gap:0;background:var(--bg2);border-bottom:2px solid var(--border2);padding:0 16px}
+.tab-btn{padding:10px 20px;font-size:.82rem;font-weight:600;color:var(--txt3);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .15s,border-color .15s;letter-spacing:.03em}
+.tab-btn:hover{color:var(--txt2)}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue)}
+.tab-panel{display:none;flex-direction:column;overflow:hidden;flex:1}
+.tab-panel.active{display:flex}
+.p5-wrap{flex:1;overflow-x:auto}
+.p5-ctl{background:var(--bg2);padding:8px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.p5-ctl select{background:var(--bg3);border:1px solid var(--border2);border-radius:5px;color:var(--txt);padding:6px 10px;font-size:.8rem;cursor:pointer;outline:none;min-width:130px}
+.p5-ctl select:focus{border-color:var(--blue)}
+.p5-ctl-right{margin-left:auto;font-size:.78rem;color:var(--txt3)}
+.p5-ctl-right b{color:var(--txt2)}
+.p5-info{padding:6px 16px;font-size:.72rem;color:var(--txt3);background:var(--bg2);border-bottom:1px solid var(--border)}
+.p5-table{width:100%;border-collapse:collapse;min-width:760px}
+.p5-table thead tr{background:var(--bg2);border-bottom:2px solid var(--border2)}
+.p5-table thead th{padding:9px 10px;text-align:left;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--txt3);white-space:nowrap;border-right:1px solid var(--border)}
+.p5-table thead th.r{text-align:right}.p5-table thead th:last-child{border-right:none}
+.p5-table tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+.p5-table tbody tr:hover{background:var(--bg3)}
+.p5-table tbody td{padding:8px 10px;border-right:1px solid var(--border);white-space:nowrap;font-size:.82rem}
+.p5-table tbody td:last-child{border-right:none}
+.p5-val{font-weight:700;font-size:.8rem}
+.p5-val.hi{color:#ef4444}.p5-val.md{color:#f59e0b}.p5-val.lo{color:#22c55e}.p5-val.na{color:var(--border2);font-weight:400}
+.p5-streak{display:inline-block;font-size:.65rem;padding:1px 5px;border-radius:3px;border:1px solid var(--border2);color:var(--txt3);margin-left:2px;background:var(--bg4)}
+.p5-streak.full{color:#f59e0b;border-color:#92400e;background:#1c1400}
+.p5-load{text-align:center;padding:50px 20px;color:var(--txt2);font-size:.85rem}
 </style>
 </head>
 <body>
@@ -118,7 +146,12 @@ tbody td:last-child{border-right:none}
   <span class="ban-icon" id="banIcon"></span>
   <span class="ban-msg" id="banMsg"></span>
   <span class="ban-close" onclick="document.getElementById('dataBanner').classList.remove('show')" title="Dismiss">&#10005;</span>
+</div><div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('today')" id="tab-today">&#9654; Today</button>
+  <button class="tab-btn" onclick="switchTab('past5')" id="tab-past5">&#128200; Past 5 Days &gt;5x</button>
 </div>
+<div class="tab-panel active" id="panel-today">
+
 <div class="stats">
   <div class="card c-blue"><div class="lb">Total Stocks</div><div class="vl" id="cTotal">&#8212;</div></div>
   <div class="card c-green"><div class="lb">Gainers</div><div class="vl" id="cGain">&#8212;</div></div>
@@ -175,6 +208,29 @@ tbody td:last-child{border-right:none}
   </table>
 </div>
 <div class="pag" id="pagDiv" style="display:none"></div>
+</div>
+<div class="tab-panel" id="panel-past5">
+  <div class="p5-ctl">
+    <select id="p5SectorFilt" onchange="p5Apply()"><option value="All">All Sectors</option></select>
+    <select id="p5MinDays" onchange="p5Apply()">
+      <option value="1">&#8805;1 day &gt;5x</option>
+      <option value="2">&#8805;2 days &gt;5x</option>
+      <option value="3">&#8805;3 days &gt;5x</option>
+      <option value="4">&#8805;4 days &gt;5x</option>
+      <option value="5">All 5 days &gt;5x</option>
+    </select>
+    <button class="btn-reset" onclick="p5Reload()" style="font-size:.8rem;padding:6px 14px">&#8635; Refresh</button>
+    <div class="p5-ctl-right"><b id="p5Info">&#8212;</b></div>
+  </div>
+  <div class="p5-info" id="p5DatesInfo"></div>
+  <div class="p5-wrap">
+    <div class="p5-load" id="p5Msg"><span class="spin"></span> Loading past 5 days data&hellip;</div>
+    <table class="p5-table" id="p5Tbl" style="display:none">
+      <thead><tr id="p5Head"></tr></thead>
+      <tbody id="p5Body"></tbody>
+    </table>
+  </div>
+</div>
 <script>
 const JSON_URL='https://raw.githubusercontent.com/VJTriumph/VolumeRatio/main/output/latest.json';
 const CSV_URL='https://raw.githubusercontent.com/VJTriumph/VolumeRatio/main/output/volume_ratio_latest.csv';
@@ -439,6 +495,161 @@ function resetFilters(){
   applyFilters();
 }
 loadData();
+
+function switchTab(name){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  document.getElementById('panel-'+name).classList.add('active');
+  if(name==='past5'&&!p5Loaded)p5Reload();
+}
+
+/* ── Past 5 Days >5x logic ── */
+let p5Loaded=false,p5AllRows=[],p5Dates=[],p5Filtered=[];
+const BASE='https://raw.githubusercontent.com/VJTriumph/VolumeRatio/main/output/';
+
+function p5DateStr(d){return d.toISOString().slice(0,10).replace(/-/g,'');}
+function p5DateLabel(s){return s.slice(0,4)+'-'+s.slice(4,6)+'-'+s.slice(6,8);}
+
+function parseCSV2(txt){
+  const lines=txt.trim().split('\n');
+  const hdrs=lines[0].split(',').map(h=>h.trim());
+  return lines.slice(1).filter(l=>l.trim()).map(l=>{
+    const vals=[];let cur='',inQ=false;
+    for(let c of l){if(c==='"'){inQ=!inQ;}else if(c===','&&!inQ){vals.push(cur.trim());cur='';}else cur+=c;}
+    vals.push(cur.trim());
+    const obj={};hdrs.forEach((h,i)=>obj[h]=vals[i]||'');return obj;
+  });
+}
+
+async function p5FetchDay(dateStr){
+  const url=BASE+'volume_ratio_'+dateStr+'.csv?t='+Date.now();
+  try{
+    const r=await fetch(url);
+    if(!r.ok)return null;
+    const txt=await r.text();
+    const rows=parseCSV2(txt).filter(d=>(+d['Volume Ratio']||0)>=5);
+    return{date:dateStr,rows};
+  }catch(e){return null;}
+}
+
+async function p5Reload(){
+  p5Loaded=false;
+  document.getElementById('p5Msg').innerHTML='<span class="spin"></span> Loading past 5 days data&hellip;';
+  document.getElementById('p5Msg').style.display='';
+  document.getElementById('p5Tbl').style.display='none';
+  document.getElementById('p5DatesInfo').textContent='';
+  document.getElementById('p5Info').innerHTML='&mdash;';
+
+  // Try last 10 calendar days to find 5 trading days
+  const results=[];
+  const today=new Date();
+  for(let i=1;i<=14&&results.length<5;i++){
+    const d=new Date(today);d.setDate(today.getDate()-i);
+    const ds=p5DateStr(d);
+    const res=await p5FetchDay(ds);
+    if(res&&res.rows.length>0)results.push(res);
+  }
+
+  if(results.length===0){
+    document.getElementById('p5Msg').innerHTML='&#9888; No data found for the past days.';
+    return;
+  }
+
+  p5Dates=results.map(r=>r.date).sort();
+  // Build merged map: symbol -> {info, days:{dateStr: vrVal}}
+  const map={};
+  results.forEach(({date,rows})=>{
+    rows.forEach(row=>{
+      const sym=row['Symbol']||'';
+      if(!sym)return;
+      if(!map[sym]){
+        map[sym]={
+          symbol:sym,
+          company:row['Company Name']||sym,
+          sector:(row['Sector']||'Other').trim(),
+          days:{}
+        };
+      }
+      map[sym].days[date]={
+        vr:+row['Volume Ratio']||0,
+        pct:+row['Pct Change']||0,
+        close:+row['Close']||0
+      };
+    });
+  });
+
+  p5AllRows=Object.values(map).sort((a,b)=>{
+    // Sort by number of qualifying days desc, then max VR desc
+    const da=Object.keys(a.days).length,db=Object.keys(b.days).length;
+    if(db!==da)return db-da;
+    const maxA=Math.max(...Object.values(a.days).map(x=>x.vr));
+    const maxB=Math.max(...Object.values(b.days).map(x=>x.vr));
+    return maxB-maxA;
+  });
+
+  // Build sector list
+  const sects=['All',...new Set(p5AllRows.map(r=>r.sector))].sort();
+  const sel=document.getElementById('p5SectorFilt');
+  sel.innerHTML=sects.map(s=>'<option value="'+s+'">'+(s==='All'?'All Sectors':s)+'</option>').join('');
+
+  // Build table header
+  const head=document.getElementById('p5Head');
+  head.innerHTML='<th>#</th><th>Symbol</th><th>Sector</th>'
+    +p5Dates.map(d=>'<th class="r" title="'+p5DateLabel(d)+'">'+p5DateLabel(d)+'</th>').join('')
+    +'<th class="r">Days&gt;5x</th><th class="r">Max VR</th>';
+
+  // Dates info
+  document.getElementById('p5DatesInfo').textContent=
+    'Showing '+results.length+' trading day(s): '+p5Dates.map(p5DateLabel).join(', ')+' | Only stocks with Vol Ratio ≥5x shown';
+
+  p5Loaded=true;
+  p5Apply();
+  document.getElementById('p5Msg').style.display='none';
+  document.getElementById('p5Tbl').style.display='';
+}
+
+function p5Apply(){
+  if(!p5Loaded)return;
+  const sector=document.getElementById('p5SectorFilt').value;
+  const minDays=+(document.getElementById('p5MinDays').value||1);
+  p5Filtered=p5AllRows.filter(r=>{
+    if(sector!=='All'&&r.sector!==sector)return false;
+    if(Object.keys(r.days).length<minDays)return false;
+    return true;
+  });
+  document.getElementById('p5Info').innerHTML='<b>'+p5Filtered.length+'</b> stocks';
+  p5Render();
+}
+
+function p5Render(){
+  const tbody=document.getElementById('p5Body');
+  if(!p5Filtered.length){tbody.innerHTML='<tr><td colspan="20" style="text-align:center;padding:40px;color:var(--txt3)">No stocks match the filter.</td></tr>';return;}
+  tbody.innerHTML=p5Filtered.map((r,i)=>{
+    const sym=r.symbol.replace('.NS','').replace('.BO','');
+    const link='https://finance.yahoo.com/quote/'+encodeURIComponent(r.symbol);
+    const dayCount=Object.keys(r.days).length;
+    const maxVR=Math.max(...Object.values(r.days).map(x=>x.vr));
+    const allDays=dayCount===p5Dates.length;
+    const dayCells=p5Dates.map(d=>{
+      const info=r.days[d];
+      if(!info)return '<td class="r"><span class="p5-val na">—</span></td>';
+      const vr=info.vr;
+      const cls=vr>=10?'hi':vr>=5?'md':'lo';
+      return '<td class="r"><span class="p5-val '+cls+'">'+vr.toFixed(1)+'x</span></td>';
+    }).join('');
+    const maxCls=maxVR>=10?'hi':maxVR>=5?'md':'lo';
+    const streakHTML=allDays?'<span class="p5-streak full">&#9733; '+p5Dates.length+'d</span>':'<span class="p5-streak">'+dayCount+'d</span>';
+    return '<tr>'
+      +'<td style="color:var(--txt3);font-size:.75rem">'+(i+1)+'</td>'
+      +'<td><a class="td-sym" href="'+link+'" target="_blank">'+sym+'</a><div class="td-co">'+r.company+'</div></td>'
+      +'<td><span class="sect-pill">'+r.sector+'</span></td>'
+      +dayCells
+      +'<td class="r">'+streakHTML+'</td>'
+      +'<td class="r"><span class="p5-val '+maxCls+'">'+maxVR.toFixed(1)+'x</span></td>'
+      +'</tr>';
+  }).join('');
+}
 </script>
 </body>
 </html>
