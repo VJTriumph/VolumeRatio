@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-03-25 11:11:20",
+  "last_updated": "2026-03-26 11:13:51",
   "total_stocks": 750,
   "failed_stocks": 1,
   "sector_summary": {
@@ -2265,19 +2265,6 @@
     },
     {
       "Rank": 173,
-      "Symbol": "AKZOINDIA.NS",
-      "Company Name": "Akzo Nobel India Ltd.",
-      "Sector": "Consumer Durables",
-      "Close": 2925.1,
-      "Pct Change": 2.55,
-      "Today Volume": 49048,
-      "15D Avg Volume": 34036,
-      "Volume Ratio": 1.4411,
-      "Days of Data": 16,
-      "Date": "2026-03-25"
-    },
-    {
-      "Rank": 174,
       "Symbol": "IREDA.NS",
       "Company Name": "Indian Renewable Energy Development Agency Ltd.",
       "Sector": "Financial Services",
@@ -2285,6 +2272,19 @@
       "Pct Change": 4.22,
       "Today Volume": 12926788,
       "15D Avg Volume": 8969804,
+      "Volume Ratio": 1.4411,
+      "Days of Data": 16,
+      "Date": "2026-03-25"
+    },
+    {
+      "Rank": 174,
+      "Symbol": "AKZOINDIA.NS",
+      "Company Name": "Akzo Nobel India Ltd.",
+      "Sector": "Consumer Durables",
+      "Close": 2925.1,
+      "Pct Change": 2.55,
+      "Today Volume": 49048,
+      "15D Avg Volume": 34036,
       "Volume Ratio": 1.4411,
       "Days of Data": 16,
       "Date": "2026-03-25"
@@ -4358,19 +4358,6 @@
     },
     {
       "Rank": 334,
-      "Symbol": "HINDUNILVR.NS",
-      "Company Name": "Hindustan Unilever Ltd.",
-      "Sector": "Fast Moving Consumer Goods",
-      "Close": 2134.8,
-      "Pct Change": 2.39,
-      "Today Volume": 2069050,
-      "15D Avg Volume": 1935693,
-      "Volume Ratio": 1.0689,
-      "Days of Data": 16,
-      "Date": "2026-03-25"
-    },
-    {
-      "Rank": 335,
       "Symbol": "MFSL.NS",
       "Company Name": "Max Financial Services Ltd.",
       "Sector": "Financial Services",
@@ -4378,6 +4365,19 @@
       "Pct Change": 0.15,
       "Today Volume": 1020340,
       "15D Avg Volume": 954600,
+      "Volume Ratio": 1.0689,
+      "Days of Data": 16,
+      "Date": "2026-03-25"
+    },
+    {
+      "Rank": 335,
+      "Symbol": "HINDUNILVR.NS",
+      "Company Name": "Hindustan Unilever Ltd.",
+      "Sector": "Fast Moving Consumer Goods",
+      "Close": 2134.8,
+      "Pct Change": 2.39,
+      "Today Volume": 2069050,
+      "15D Avg Volume": 1935693,
       "Volume Ratio": 1.0689,
       "Days of Data": 16,
       "Date": "2026-03-25"
@@ -4514,19 +4514,6 @@
     },
     {
       "Rank": 346,
-      "Symbol": "HDFCBANK.NS",
-      "Company Name": "HDFC Bank Ltd.",
-      "Sector": "Financial Services",
-      "Close": 782.3,
-      "Pct Change": 2.27,
-      "Today Volume": 59223959,
-      "15D Avg Volume": 56469968,
-      "Volume Ratio": 1.0488,
-      "Days of Data": 16,
-      "Date": "2026-03-25"
-    },
-    {
-      "Rank": 347,
       "Symbol": "AMBER.NS",
       "Company Name": "Amber Enterprises India Ltd.",
       "Sector": "Consumer Durables",
@@ -4534,6 +4521,19 @@
       "Pct Change": 4.56,
       "Today Volume": 400350,
       "15D Avg Volume": 381709,
+      "Volume Ratio": 1.0488,
+      "Days of Data": 16,
+      "Date": "2026-03-25"
+    },
+    {
+      "Rank": 347,
+      "Symbol": "HDFCBANK.NS",
+      "Company Name": "HDFC Bank Ltd.",
+      "Sector": "Financial Services",
+      "Close": 782.3,
+      "Pct Change": 2.27,
+      "Today Volume": 59223959,
+      "15D Avg Volume": 56469968,
       "Volume Ratio": 1.0488,
       "Days of Data": 16,
       "Date": "2026-03-25"
@@ -4592,19 +4592,6 @@
     },
     {
       "Rank": 352,
-      "Symbol": "CENTURYPLY.NS",
-      "Company Name": "Century Plyboards (India) Ltd.",
-      "Sector": "Consumer Durables",
-      "Close": 702.0,
-      "Pct Change": 3.42,
-      "Today Volume": 45132,
-      "15D Avg Volume": 43286,
-      "Volume Ratio": 1.0426,
-      "Days of Data": 16,
-      "Date": "2026-03-25"
-    },
-    {
-      "Rank": 353,
       "Symbol": "INGERRAND.NS",
       "Company Name": "Ingersoll Rand (India) Ltd.",
       "Sector": "Capital Goods",
@@ -4612,6 +4599,19 @@
       "Pct Change": 1.98,
       "Today Volume": 9953,
       "15D Avg Volume": 9546,
+      "Volume Ratio": 1.0426,
+      "Days of Data": 16,
+      "Date": "2026-03-25"
+    },
+    {
+      "Rank": 353,
+      "Symbol": "CENTURYPLY.NS",
+      "Company Name": "Century Plyboards (India) Ltd.",
+      "Sector": "Consumer Durables",
+      "Close": 702.0,
+      "Pct Change": 3.42,
+      "Today Volume": 45132,
+      "15D Avg Volume": 43286,
       "Volume Ratio": 1.0426,
       "Days of Data": 16,
       "Date": "2026-03-25"
@@ -5593,19 +5593,6 @@
     },
     {
       "Rank": 429,
-      "Symbol": "RBLBANK.NS",
-      "Company Name": "RBL Bank Ltd.",
-      "Sector": "Financial Services",
-      "Close": 303.95,
-      "Pct Change": 2.48,
-      "Today Volume": 3555109,
-      "15D Avg Volume": 3766347,
-      "Volume Ratio": 0.9439,
-      "Days of Data": 16,
-      "Date": "2026-03-25"
-    },
-    {
-      "Rank": 430,
       "Symbol": "SBIN.NS",
       "Company Name": "State Bank of India",
       "Sector": "Financial Services",
@@ -5613,6 +5600,19 @@
       "Pct Change": 2.89,
       "Today Volume": 16203517,
       "15D Avg Volume": 17167041,
+      "Volume Ratio": 0.9439,
+      "Days of Data": 16,
+      "Date": "2026-03-25"
+    },
+    {
+      "Rank": 430,
+      "Symbol": "RBLBANK.NS",
+      "Company Name": "RBL Bank Ltd.",
+      "Sector": "Financial Services",
+      "Close": 303.95,
+      "Pct Change": 2.48,
+      "Today Volume": 3555109,
+      "15D Avg Volume": 3766347,
       "Volume Ratio": 0.9439,
       "Days of Data": 16,
       "Date": "2026-03-25"
@@ -6698,19 +6698,6 @@
     },
     {
       "Rank": 514,
-      "Symbol": "EPIGRAL.NS",
-      "Company Name": "Epigral Ltd.",
-      "Sector": "Chemicals",
-      "Close": 884.55,
-      "Pct Change": 2.5,
-      "Today Volume": 62264,
-      "15D Avg Volume": 75190,
-      "Volume Ratio": 0.8281,
-      "Days of Data": 16,
-      "Date": "2026-03-25"
-    },
-    {
-      "Rank": 515,
       "Symbol": "GMRP&UI.NS",
       "Company Name": "GMR Power and Urban Infra Ltd.",
       "Sector": "Power",
@@ -6718,6 +6705,19 @@
       "Pct Change": 1.22,
       "Today Volume": 1180094,
       "15D Avg Volume": 1425112,
+      "Volume Ratio": 0.8281,
+      "Days of Data": 16,
+      "Date": "2026-03-25"
+    },
+    {
+      "Rank": 515,
+      "Symbol": "EPIGRAL.NS",
+      "Company Name": "Epigral Ltd.",
+      "Sector": "Chemicals",
+      "Close": 884.55,
+      "Pct Change": 2.5,
+      "Today Volume": 62264,
+      "15D Avg Volume": 75190,
       "Volume Ratio": 0.8281,
       "Days of Data": 16,
       "Date": "2026-03-25"
